@@ -17,13 +17,24 @@ defmodule Exchema do
   @type parse_result :: map() | {:errors, [field_error]}
 
   @spec parse(map(), schema) :: parse_result
-  def parse(input_map, schema) do
+  def parse(input_map, schema, opts \\ []) do
     schema
     |> Map.to_list
-    |> Enum.map(&(construct_field(input_map, &1)))
+    |> Enum.map(&(construct_field(input_map, &1, options(opts))))
     |> Enum.reduce(%{}, &fold_result/2)
   end
 
+  defp options(opts) do
+    default_options = [
+      key_transformers: [&(&1), &to_string/1],
+      transformers: [Exchema.Transformers.Type],
+    ]
+
+    default_options
+    |> Keyword.merge(opts)
+  end
+
+  # == Fold Result ==
   @spec fold_result({any, transformation_result}, map()) :: map() | parse_result
   defp fold_result({key, {:error, err}}, %{}), do: {:errors, add_error([], key, err)}
   defp fold_result({key, {:error, err}}, {:errors, e}), do: {:errors, add_error(e, key, err)}
@@ -41,78 +52,63 @@ defmodule Exchema do
 
   defp flatten_error(top_key, {path, err}), do: {[top_key | path], err}
 
-  @spec construct_field(map(), {any, schema_field}) :: {any, transformation_result}
-  defp construct_field(input_map, {key, %{} = schema}) do
-    parsed =
+  # == Transform each field ==
+  @spec construct_field(map(), {any, schema_field}, [atom: any]) :: {any, transformation_result}
+  defp construct_field(input_map, {key, definition}, opts) do
+    result =
       input_map
-      |> get_value(key)
-      |> parse(schema)
+      |> get_value(key, Keyword.get(opts, :key_transformers))
+      |> transform(definition, opts)
 
-    case parsed do
-      {:errors, errors} ->
-        {key, {:error, {:errors, errors}}}
-      _ ->
-        {key, parsed}
-    end
-  end
-  defp construct_field(input_map, {key, transformer_specs}) do
-    transformers =
-      transformer_specs
-      |> Enum.map(&fetch_transformer/1)
-
-    new_val =
-      input_map
-      |> get_value(key)
-      |> apply_transformers(transformers)
-
-    {key, new_val}
+    {key, result}
   end
 
-  @doc "Get key by itself or by stringy-version of it"
   @spec get_value(map, any, [(any -> any)]) :: any
-  defp get_value(input_map, key, key_transformers \\ [&(&1), &to_string/1]) do
+  defp get_value(input_map, key, key_transformers) do
     key_transformers
     |> Enum.filter(&(Map.has_key?(input_map, &1.(key))))
     |> Enum.map(&(Map.get(input_map, &1.(key))))
     |> List.first
   end
 
-  @spec fetch_transformer(transformer_spec) :: transformer
-  defp fetch_transformer({key, options}) do
-    fn val -> transform(key, val, options) end
+  @spec transform(any, schema_field, [atom: any]) :: transformation_result
+  defp transform(input, %{} = schema, opts) do
+    parsed = parse(input, schema, opts)
+
+    case parsed do
+      {:errors, errors} ->
+        {:error, {:errors, errors}}
+      _ ->
+        parsed
+    end
+  end
+  defp transform(input, transformer_specs, opts) do
+    Enum.reduce(
+      transformer_specs,
+      input,
+      &(apply_transformer(&2, &1, Keyword.get(opts, :transformers)))
+    )
   end
 
-  @spec apply_transformers(any, [transformer]) :: transformation_result
-  defp apply_transformers(value, transformers) do
-    transformers
-    |> Enum.reduce(value, &(apply_transformer(&2, &1)))
-  end
-
-  defp apply_transformer({:error, _} = err, _), do: err
-  defp apply_transformer(val, transformer) do
-    case transformer.(val) do
+  @spec apply_transformer(any, transformer_spec, [transformer]) :: transformation_result
+  defp apply_transformer({:error, _} = err, _, _), do: err
+  defp apply_transformer(val, transformer_spec, transformers) do
+    case do_apply_transformer(val, transformer_spec, transformers) do
       :ok ->
         val
       {:ok, new_val} ->
         new_val
       {:error, error} ->
         {:error, error}
-      new_val ->
-        new_val
     end
   end
 
-  # === Transformers ===
-
-  def transform(:integer, val, _) when is_binary(val) do
-    case Integer.parse(val) do
-      {int, _} ->
-        int
-      :error ->
-        {:error, :not_a_valid_integer}
-    end
+  defp do_apply_transformer(val, {key, opts}, transformers) do
+    transformers
+    |> Stream.map(&(&1.transform(key, val, opts)))
+    |> Stream.filter(&(&1 != :unhandled))
+    |> Stream.take(1)
+    |> Enum.to_list
+    |> List.first
   end
-  def transform(:integer, val, _) when is_float(val), do: Float.round(val)
-  def transform(:integer, val, _) when is_integer(val), do: val
-  def transform(:integer, val, _), do: {:error, :not_a_valid_integer}
 end

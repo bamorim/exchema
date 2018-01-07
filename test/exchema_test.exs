@@ -2,7 +2,7 @@ defmodule ExchemaTest do
   use ExUnit.Case
   doctest Exchema
 
-  @basic_schema %{ field: [{:integer, []}] }
+  @basic_schema %{ field: [type: :integer] }
 
   test "it fetches fields from schema" do
     map = %{ field: "1" }
@@ -17,7 +17,7 @@ defmodule ExchemaTest do
   end
 
   test "it can fail" do
-    map = %{field: "not_integer"}
+    map = %{ field: "not_integer" }
 
     assert {:errors, [{[:field], _err}]} = Exchema.parse(map, @basic_schema)
   end
@@ -34,5 +34,20 @@ defmodule ExchemaTest do
     map = %{ nested: %{ field: "not_integer" }}
 
     assert {:errors, [{[:nested, :field], _err}]} = Exchema.parse(map, schema)
+  end
+
+  test "deep nesting errors" do
+    schema = %{ nested: %{ nested: %{ nested: %{ nested: @basic_schema } } } }
+    map = %{ nested: %{ nested: %{ nested: %{ nested: %{ field: "not_integer" } } } } }
+
+    path = [:nested, :nested, :nested, :nested, :field]
+    assert {:errors, [{^path, _}]} = Exchema.parse(map, schema)
+  end
+
+  test "integer transformer allow nil" do
+    schema = @basic_schema
+    map = %{ field: nil }
+
+    assert %{ field: nil } == Exchema.parse(map, schema)
   end
 end
