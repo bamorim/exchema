@@ -1,6 +1,6 @@
 # Exchema
 
-**TODO: Add description**
+This is still a WIP. More details later =D
 
 ## Installation
 
@@ -34,3 +34,26 @@ Exchema works with some important pieces:
 - TransformerFinder
   This implements a function that receives a transformation definition and
   returns either nil or a transformer.
+
+## Work to do
+
+- [X] Define schema internal representation
+- [X] Create parser that parses and transforms a given input
+- [X] Create DSL to 
+- [ ] Allow DSL to generate struct
+- [ ] Add schema-level transformations
+- [ ] Implement type coercion for
+  - [X] Integer
+  - [ ] Float
+  - [ ] Date (ISO 8601)
+  - [ ] Time (ISO 8601)
+  - [ ] NaiveDateTime (ISO 8601)
+  - [ ] DateTime (ISO 8601)
+  - [ ] Other Schemas
+- [ ] Implement transformaitons for the following libs (and extract later)
+  - [ ] UUID
+  - [ ] Vex (validation)
+
+Maybe the generation of struct can be defined as a after-schema def plugin that
+would enable other extensions such as generating a Ecto.Schema (bonus for generating
+changeset validations automagically) in external libraries.
