@@ -1,4 +1,8 @@
 defmodule Exchema.Parser do
+  @moduledoc """
+  Parses a input to a given schema or module that
+  defines an schema
+  """
   alias Exchema.{
     Transformer,
     Schema

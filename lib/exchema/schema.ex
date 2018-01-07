@@ -1,8 +1,11 @@
 defmodule Exchema.Schema do
+  @moduledoc """
+  Defines the DSL for defining a schema
+  """
   @type field :: [Exchema.Transformer.spec] | t
   @type t :: %{required(any) => field} | module
 
-  def __using__() do
+  def __using__ do
     quote do
       import Exchema.Schema, only: [schema: 1]
     end
@@ -21,7 +24,11 @@ defmodule Exchema.Schema do
         :ok
       end
 
-      Module.put_attribute(__MODULE__, :exchema_fields, Module.get_attribute(__MODULE__, :exchema_fields_0) |> Enum.into(%{}))
+      Module.put_attribute(__MODULE__, :exchema_fields,
+        __MODULE__
+        |> Module.get_attribute(:exchema_fields_0)
+        |> Enum.into(%{})
+      )
       Module.delete_attribute(__MODULE__, :exchema_depth_counter)
       Module.delete_attribute(__MODULE__, :exchema_fields_0)
 
@@ -57,7 +64,8 @@ defmodule Exchema.Schema do
         :"exchema_fields_#{prev_depth}",
         {
           unquote(name),
-          Module.get_attribute(__MODULE__, :"exchema_fields_#{depth}")
+          __MODULE__
+          |> Module.get_attribute(:"exchema_fields_#{depth}")
           |> Enum.into(%{})
         }
       )

@@ -5,7 +5,8 @@ defmodule Exchema do
 
   alias Exchema.{
     Parser,
-    Schema
+    Schema,
+    Transformers
   }
 
   @spec parse(map(), Schema.t) :: Parser.result
@@ -16,7 +17,7 @@ defmodule Exchema do
   defp options(opts) do
     default_options = [
       key_transformers: [&(&1), &to_string/1],
-      transformers: [Exchema.Transformers.Type],
+      transformers: [Transformers.Type],
     ]
 
     default_options

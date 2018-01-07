@@ -1,4 +1,8 @@
 defmodule Exchema.Transformer do
+  @moduledoc """
+  The interface for a transformer
+  """
+
   @type t :: module
   @type spec :: {any, any}
   @type error :: String.t | atom
