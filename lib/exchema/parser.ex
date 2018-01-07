@@ -94,7 +94,7 @@ defmodule Exchema.Parser do
     end
   end
 
-  @spec apply_transformer(any, Transformer.spec, [Tranformer.t]) :: Transformer.result
+  @spec do_apply_transformer(any, Transformer.spec, [Transformer.t]) :: Transformer.result
   defp do_apply_transformer(val, {key, opts}, transformers) do
     transformers
     |> Stream.map(&(&1.transform(key, val, opts)))
