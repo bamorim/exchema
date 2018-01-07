@@ -22,4 +22,8 @@ defmodule Exchema do
     default_options
     |> Keyword.merge(opts)
   end
+
+  defmacro __using__(_) do
+    Exchema.Schema.__using__()
+  end
 end

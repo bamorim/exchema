@@ -9,6 +9,9 @@ defmodule Exchema.Parser do
   @type result :: map() | {:errors, [field_error]}
 
   @spec parse(map(), Schema.t, [atom: any]) :: result
+  def parse(input, schema, opts) when is_atom(schema) do
+    parse(input, schema.__exchema__(), opts)
+  end
   def parse(input_map, schema, opts) do
     schema
     |> Map.to_list
