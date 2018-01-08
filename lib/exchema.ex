@@ -24,7 +24,7 @@ defmodule Exchema do
     |> Keyword.merge(opts)
   end
 
-  defmacro __using__(_) do
-    Exchema.Schema.__using__()
+  defmacro __using__(opts) do
+    Exchema.Schema.__using__(opts)
   end
 end

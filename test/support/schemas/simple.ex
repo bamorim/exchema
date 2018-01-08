@@ -1,4 +1,4 @@
-defmodule SampleSchema do
+defmodule Schemas.Simple do
   use Exchema
 
   schema do

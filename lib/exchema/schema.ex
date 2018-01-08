@@ -5,13 +5,16 @@ defmodule Exchema.Schema do
   @type field :: [Exchema.Transformer.spec] | t
   @type t :: %{required(any) => field} | module
 
-  def __using__ do
+  def __using__(opts) do
     quote do
-      import Exchema.Schema, only: [schema: 1]
+      import Exchema.Schema, only: [schema: 1, schema: 2]
     end
   end
 
-  defmacro schema([do: block]) do
+  defmacro schema([do: block]), do: __schema__(block)
+  defmacro schema(opts, [do: block]), do: __schema__(block, opts)
+
+  defp __schema__(block, opts \\ []) do
     quote do
       Module.register_attribute(__MODULE__, :exchema_depth_counter, [])
       Module.put_attribute(__MODULE__, :exchema_depth_counter, 0)
@@ -35,8 +38,17 @@ defmodule Exchema.Schema do
       def __exchema__ do
         @exchema_fields
       end
+
+      unquote(__define_struct__(opts))
     end
   end
+
+  defp __define_struct__([struct: true]) do
+    quote do
+      defstruct (@exchema_fields |> Enum.map(fn {key, _} -> {key, nil} end))
+    end
+  end
+  defp __define_struct__(_), do: nil
 
   defmacro field(name, args \\ []) do
     quote do

@@ -1,4 +1,4 @@
-defmodule NestedSchema do
+defmodule Schemas.Nested do
   use Exchema
 
   schema do

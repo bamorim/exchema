@@ -40,7 +40,7 @@ Exchema works with some important pieces:
 - [X] Define schema internal representation
 - [X] Create parser that parses and transforms a given input
 - [X] Create DSL to 
-- [ ] Allow DSL to generate struct
+- [X] Allow DSL to generate struct
 - [ ] Add schema-level transformations
 - [ ] Implement type coercion for
   - [X] Integer
