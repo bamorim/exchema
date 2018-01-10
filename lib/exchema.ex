@@ -3,28 +3,48 @@ defmodule Exchema do
   Documentation for Exchema.
   """
 
-  alias Exchema.{
-    Parser,
-    Schema,
-    Transformers
-  }
+  @type error :: {Predicate.t, atom, any, Predicate.options}
 
-  @spec parse(map(), Schema.t) :: Parser.result
-  def parse(input_map, schema, opts \\ []) do
-    Parser.parse(input_map, schema, options(opts))
+  @spec is?(any, Type.spec) :: boolean
+  def is?(val, type), do: errors(val, type) == []
+
+  @spec errors(any, Type.spec) :: [error]
+  def errors(_, :any), do: []
+  def errors(val, {:ref, supertype, predicates}) do
+    errors(val, supertype) ++ errors_for(predicates, val)
+  end
+  def errors(val, type_ref) do
+    errors(val, resolve_type(type_ref))
   end
 
-  defp options(opts) do
-    default_options = [
-      key_transformers: [&(&1), &to_string/1],
-      transformers: [Transformers.Type],
-    ]
-
-    default_options
-    |> Keyword.merge(opts)
+  @spec errors_for([Predicate.spec], any) :: [error]
+  defp errors_for(predicates, val) when is_list(predicates) do
+    predicates
+    |> Enum.flat_map(&(predicate_errors(&1, val)))
   end
 
-  defmacro __using__(opts) do
-    Exchema.Schema.__using__(opts)
+  @spec predicate_errors(Predicate.spec, any) :: [error]
+  defp predicate_errors({mod, opts}, val) do
+    case mod.__predicate__(val, opts) do
+      {:error, err} ->
+        [{mod, err}]
+      _ ->
+        []
+    end
+  end
+
+  @spec is_error?(Predicate.result) :: boolean
+  defp is_error?({:error, _}), do: true
+  defp is_error?(_, _), do: false
+
+  @spec resolve_type(Type.type_reference) :: Type.t | Type.refined_type
+  defp resolve_type({type, param}) when is_atom(param) do
+    type.__type__({param})
+  end
+  defp resolve_type({type, params}) do
+    type.__type__(params)
+  end
+  defp resolve_type(type) do
+    type.__type__({})
   end
 end

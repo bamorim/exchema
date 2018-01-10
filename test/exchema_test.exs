@@ -2,52 +2,85 @@ defmodule ExchemaTest do
   use ExUnit.Case
   doctest Exchema
 
-  @basic_schema %{ field: [type: :integer] }
+  @moduletag :basic
 
-  test "it fetches fields from schema" do
-    map = %{ field: "1" }
-
-    assert %{field: 1} = Exchema.parse(map, @basic_schema)
+  defmodule IntegerPredicate do
+    @behaviour Exchema.Predicate
+    def __predicate__(value, _) when is_integer(value), do: :ok
+    def __predicate__(_,_), do: {:error, :not_an_integer}
   end
 
-  test "it allows stringy keys transformations" do
-    map = %{ "field" => "1" }
-
-    assert %{field: 1} = Exchema.parse(map, @basic_schema)
+  defmodule MinPredicate do
+    @behaviour Exchema.Predicate
+    def __predicate__(value, min) when value >= min, do: :ok
+    def __predicate__(_, _), do: {:error, :should_be_bigger}
   end
 
-  test "it can fail" do
-    map = %{ field: "not_integer" }
-
-    assert {:errors, [{[:field], _err}]} = Exchema.parse(map, @basic_schema)
+  defmodule IntegerType do
+    @behaviour Exchema.Type
+    def __type__(_), do: {:ref, :any, [{IntegerPredicate, nil}]}
   end
 
-  test "it allows nested structs" do
-    schema = %{ nested: @basic_schema }
-    map = %{ nested: %{ field: "1" }}
-
-    assert %{ nested: %{ field: 1 } } = Exchema.parse(map, schema)
+  defmodule PositiveIntegerType do
+    @behaviour Exchema.Type
+    def __type__(_), do: {:ref, IntegerType, [{MinPredicate, 0}]}
   end
 
-  test "nested errors are flattened" do
-    schema = %{ nested: @basic_schema }
-    map = %{ nested: %{ field: "not_integer" }}
+  defmodule ListType do
+    defmodule ListPredicate do
+      def __predicate__(value, _) when is_list(value), do: :ok
+      def __predicate__(_, _), do: {:error, :not_a_list}
+    end
+    defmodule ListTypePredicate do
+      def __predicate__(list, inner_type) when is_list(list) do
+        list
+        |> Enum.all?(&(Exchema.is?(&1, inner_type)))
+        |> msg
+      end
+      def __predicate__(_, _), do: msg(false)
 
-    assert {:errors, [{[:nested, :field], _err}]} = Exchema.parse(map, schema)
+      defp msg(true), do: :ok
+      defp msg(false), do: {:error, :invalid_list_item_type}
+    end
+
+    def __type__({inner_type}) do
+      {:ref, :any, [{ListPredicate, nil}, {ListTypePredicate, inner_type}]}
+    end
   end
 
-  test "deep nesting errors" do
-    schema = %{ nested: %{ nested: %{ nested: %{ nested: @basic_schema } } } }
-    map = %{ nested: %{ nested: %{ nested: %{ nested: %{ field: "not_integer" } } } } }
-
-    path = [:nested, :nested, :nested, :nested, :field]
-    assert {:errors, [{^path, _}]} = Exchema.parse(map, schema)
+  defmodule IntegerListType do
+    def __type__(_), do: {ListType, IntegerType}
   end
 
-  test "integer transformer allow nil" do
-    schema = @basic_schema
-    map = %{ field: nil }
+  test "basic type check" do
+    assert Exchema.is?(0, IntegerType)
+    assert Exchema.is?(-1, IntegerType)
+    refute Exchema.is?("1", IntegerType)
+  end
 
-    assert %{ field: nil } == Exchema.parse(map, schema)
+  test "type refinement" do
+    assert Exchema.is?(0, PositiveIntegerType)
+    refute Exchema.is?(-1, PositiveIntegerType)
+  end
+
+  test "type error" do
+    assert [{MinPredicate, :should_be_bigger}] = Exchema.errors(-1, PositiveIntegerType)
+  end
+
+  @tag :only
+  test "parametric types" do
+    assert Exchema.is?([1,2,3], {ListType, IntegerType})
+    assert Exchema.is?([], {ListType, IntegerType})
+    refute Exchema.is?(1, {ListType, IntegerType})
+    refute Exchema.is?([1, "2", 3], {ListType, IntegerType})
+    refute Exchema.is?(["1", "2", "3"], {ListType, IntegerType})
+  end
+
+  test "parametric defined types" do
+    assert Exchema.is?([1,2,3], IntegerListType)
+    assert Exchema.is?([], IntegerListType)
+    refute Exchema.is?(1, IntegerListType)
+    refute Exchema.is?([1, "2", 3], IntegerListType)
+    refute Exchema.is?(["1", "2", "3"], IntegerListType)
   end
 end
