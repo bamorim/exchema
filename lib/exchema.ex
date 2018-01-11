@@ -36,7 +36,7 @@ defmodule Exchema do
   defp predicate_errors({pred_key, opts}, val, g_opts) do
     predicate_errors(
       {
-        {pred_mod(g_opts), pred_key},
+        {pred_mod(g_opts, pred_key), pred_key},
         opts
       },
       val,
@@ -44,8 +44,18 @@ defmodule Exchema do
     )
   end
 
-  defp pred_mod(g_opts) do
-    Keyword.get(g_opts, :predicates)
+  defp pred_mod(g_opts, pred_key) do
+    pred_mods(g_opts)
+    |> Enum.filter(&(:erlang.function_exported(&1, pred_key, 2)))
+    |> List.first
+  end
+
+  defp pred_mods(g_opts) do
+    [
+      (Keyword.get(g_opts, :predicates) || []),
+      (Application.get_env(:exchema, :predicates) || []),
+      Exchema.Predicates
+    ] |> List.flatten
   end
 
   @spec resolve_type(Type.type_reference) :: Type.t | Type.refined_type

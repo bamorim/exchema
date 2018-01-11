@@ -8,7 +8,6 @@ defmodule Exchema.Mixfile do
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
-      elixirc_paths: elixirc_paths(Mix.env),
       package: package()
     ]
   end
@@ -27,9 +26,6 @@ defmodule Exchema.Mixfile do
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
     ]
   end
-
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
 
   defp package do
     [
