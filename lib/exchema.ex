@@ -3,6 +3,8 @@ defmodule Exchema do
   Documentation for Exchema.
   """
 
+  alias Exchema.Type
+
   @type error :: {Type.predicate_spec, any}
 
   @spec is?(any, Type.spec, [{atom, any}]) :: boolean
@@ -15,7 +17,7 @@ defmodule Exchema do
     errors(val, supertype, opts) ++ errors_for(predicates, val, opts)
   end
   def errors(val, type_ref, opts) do
-    errors(val, resolve_type(type_ref), opts)
+    errors(val, Type.resolve_type(type_ref), opts)
   end
 
   @spec errors_for([Type.predicate_spec], any, [{atom, any}]) :: [error]
@@ -56,16 +58,5 @@ defmodule Exchema do
       (Application.get_env(:exchema, :predicates) || []),
       Exchema.Predicates
     ] |> List.flatten
-  end
-
-  @spec resolve_type(Type.type_reference) :: Type.t | Type.refined_type
-  defp resolve_type({type, param}) when is_atom(param) do
-    type.__type__({param})
-  end
-  defp resolve_type({type, params}) do
-    type.__type__(params)
-  end
-  defp resolve_type(type) do
-    type.__type__({})
   end
 end
