@@ -1,3 +1,9 @@
+defmodule ExchemaCoercion.CoercionTest.CustomCoercion do
+  def coerce(input) do
+    input <> input
+  end
+end
+
 defmodule CoercionTest do
   use ExUnit.Case
 
@@ -14,12 +20,6 @@ defmodule CoercionTest do
   defmodule CustomCoercion do
     def __type__({}) do
       {:ref, :any, []}
-    end
-
-    defmodule ExchemaCoercion do
-      def coerce(input) do
-        input <> input
-      end
     end
   end
 

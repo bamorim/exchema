@@ -20,7 +20,7 @@ defmodule Exchema.Coercion do
   defp expand(type), do: type.__type__({})
 
   defp coerce_mod(type) do
-    mod = Module.concat(type, ExchemaCoercion)
+    mod = Module.concat(ExchemaCoercion, type)
     if :erlang.function_exported(mod, :coerce, 1) do
       mod
     else
@@ -30,17 +30,14 @@ defmodule Exchema.Coercion do
 
   defmacro __using__(fun) do
     quote do
-      defmodule ExchemaCoercion do
-        def coerce(input) do
-          unquote(fun).(input)
-        end
-      end
+      require Exchema.Coercion
+      Exchema.Coercion.defcoercion(unquote(__CALLER__.module), unquote(fun))
     end
   end
 
   defmacro defcoercion(type, fun) do
     quote do
-      defmodule Module.concat(unquote(type), ExchemaCoercion) do
+      defmodule Module.concat(ExchemaCoercion, unquote(type)) do
         def coerce(input) do
           unquote(fun).(input)
         end
