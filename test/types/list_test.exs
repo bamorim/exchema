@@ -18,6 +18,10 @@ defmodule Exchema.Types.ListTest do
     r ["1"]
   end
 
+  test "allow list without inner type" do
+    assert Exchema.is?([1, "2"], T.List)
+  end
+
   def a(val) do
     assert Exchema.is?(val, {T.List, T.Integer})
   end
