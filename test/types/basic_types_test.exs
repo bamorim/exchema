@@ -46,4 +46,24 @@ defmodule BasicTypesTest do
     assert is?({1,2}, T.Tuple)
     refute is?([1,2], T.Tuple)
   end
+
+  test "DateTime" do
+    assert is?(DateTime.utc_now, T.DateTime)
+    refute is?(NaiveDateTime.utc_now, T.DateTime)
+  end
+
+  test "NaiveDateTime" do
+    assert is?(NaiveDateTime.utc_now, T.NaiveDateTime)
+    refute is?(DateTime.utc_now, T.NaiveDateTime)
+  end
+
+  test "Date" do
+    assert is?(Date.utc_today, T.Date)
+    refute is?(DateTime.utc_now, T.Date)
+  end
+
+  test "Time" do
+    assert is?(Time.utc_now, T.Time)
+    refute is?(DateTime.utc_now, T.Time)
+  end
 end
