@@ -1,7 +1,7 @@
 defmodule Exchema.Types.Integer do
-  alias Exchema.Predicates.Fun
+  alias Exchema.Predicates
 
   def __type__({}) do
-    {:ref, :any, [{Fun, &is_integer/1}]}
+    {:ref, :any, [{{Predicates, :is}, :integer}]}
   end
 end
