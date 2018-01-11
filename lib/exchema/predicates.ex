@@ -234,4 +234,130 @@ defmodule Exchema.Predicates do
   defp is_error_msg(:atom), do: :not_an_atom
   defp is_error_msg(:integer), do: :not_an_integer
   defp is_error_msg(key), do: :"not_a_#{key}"
+
+  @doc """
+  Ensure the value is in a list of values
+
+  ## Examples
+
+      iex> Exchema.Predicates.inclusion("apple", ["apple", "banana"])
+      :ok
+
+      iex> Exchema.Predicates.inclusion(5, 1..10)
+      :ok
+
+      iex> Exchema.Predicates.inclusion("horse", ["apple", "banana"])
+      {:error, :invalid}
+
+  """
+  def inclusion(val, values) do
+    if val in values, do: :ok, else: {:error, :invalid}
+  end
+
+  @doc """
+  Ensure the value is not in a list of values
+
+  ## Examples
+
+      iex> Exchema.Predicates.exclusion("apple", ["apple", "banana"])
+      {:error, :invalid}
+
+      iex> Exchema.Predicates.exclusion(5, 1..10)
+      {:error, :invalid}
+
+      iex> Exchema.Predicates.exclusion("horse", ["apple", "banana"])
+      :ok
+
+  """
+  def exclusion(val, values) do
+    if val in values, do: {:error, :invalid}, else: :ok
+  end
+
+  @doc """
+  Checks against a specific regex format
+
+  ## Examples
+
+      iex> Exchema.Predicates.format("starts-with", ~r/^starts-/)
+      :ok
+
+      iex> Exchema.Predicates.format("does-not-starts-with", ~r/^starts-/)
+      {:error, :invalid}
+  """
+  def format(val, regex) when is_binary(val) do
+    if Regex.match?(regex, val), do: :ok, else: {:error, :invalid}
+  end
+  def format(_, _), do: {:error, :invalid}
+
+  @doc """
+  Checks the length of the input. You can pass a max, a min, a range or a specific lenght.
+
+  Can check length of either lists, strings or tuples.
+
+  ## Examples
+
+      iex> Exchema.Predicates.length("123", 3)
+      :ok
+
+      iex> Exchema.Predicates.length([1,2,3], 3)
+      :ok
+
+      iex> Exchema.Predicates.length({1,2,3}, 3)
+      :ok
+
+      iex> Exchema.Predicates.length([1,2,3], min: 2)
+      :ok
+
+      iex> Exchema.Predicates.length([1,2,3], max: 3)
+      :ok
+
+      iex> Exchema.Predicates.length([1,2,3], 2..4)
+      :ok
+
+      iex> Exchema.Predicates.length([1,2,3], min: 2, max: 4)
+      :ok
+
+      iex> Exchema.Predicates.length([1,2,3], min: 4)
+      {:error, :invalid_length}
+
+      iex> Exchema.Predicates.length([1,2,3], max: 2)
+      {:error, :invalid_length}
+
+      iex> Exchema.Predicates.length([1,2,3], min: 1, max: 2)
+      {:error, :invalid_length}
+
+      iex> Exchema.Predicates.length([1,2,3], 2)
+      {:error, :invalid_length}
+
+      iex> Exchema.Predicates.length([1,2,3], 1..2)
+      {:error, :invalid_length}
+
+  """
+  def length(val, opts) when is_binary(val) do
+    compare_length(String.length(val), length_bounds(opts))
+  end
+  def length(val, opts) when is_tuple(val) do
+    compare_length(val |> Tuple.to_list |> length, length_bounds(opts))
+  end
+  def length(val, opts) when is_list(val) do
+    compare_length(length(val), length_bounds(opts))
+  end
+  def length(_, _), do: {:error, :invalid}
+
+  defp length_bounds(n) when is_integer(n), do: {n, n}
+  defp length_bounds(%{__struct__: Range, first: min, last: max}), do: {min, max}
+  defp length_bounds(opts) when is_list(opts) do
+    {Keyword.get(opts, :min), Keyword.get(opts, :max)}
+  end
+  defp length_bounds(_), do: {nil, nil}
+
+  defp compare_length(l, {nil, nil}), do: :ok
+  defp compare_length(l, {min, nil}) do
+    if min > l, do: {:error, :invalid_length}, else: :ok
+  end
+  defp compare_length(l, {nil, max}) do
+    if max < l, do: {:error, :invalid_length}, else: :ok
+  end
+  defp compare_length(l, {min, max}) when min > l or max < l, do: {:error, :invalid_length}
+  defp compare_length(_, _), do: :ok
 end
