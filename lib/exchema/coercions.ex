@@ -1,11 +1,4 @@
 defmodule Exchema.Coercions do
-  @moduledoc """
-  Default coercions library
-  """
-
-  alias Exchema.Types, as: T
-  alias __MODULE__, as: C
-
   @coerces [
     T.Optional,
     T.Integer,
@@ -16,6 +9,16 @@ defmodule Exchema.Coercions do
     T.Struct
   ]
 
+  @moduledoc """
+  Default coercions library
+
+  It coerces #{@coerces |> Enum.map(&to_string/1) |> Enum.join(", ") |> String.replace("Elixir.T.", "")}
+  """
+
+  alias Exchema.Types, as: T
+  alias __MODULE__, as: C
+
+  @doc false
   def coerces?({type, _}), do: coerces?(type)
   def coerces?(type) do
     type in @coerces

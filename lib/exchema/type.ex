@@ -1,4 +1,12 @@
 defmodule Exchema.Type do
+  @moduledoc """
+  This is the contract of a type module.
+
+  To implement your own type you should just implement
+  the `___type__/1` callback which receives a tuple with
+  your type arguments. If you have a concrete type,
+  then it should match on receiving an empty tuple `{}`.
+  """
   @type t :: module
 
   @type error :: {:error, any}

@@ -56,7 +56,8 @@ defmodule Exchema do
   end
 
   defp pred_mod(g_opts, pred_key) do
-    pred_mods(g_opts)
+    g_opts
+    |> pred_mods
     |> Enum.filter(&(:erlang.function_exported(&1, pred_key, 2)))
     |> List.first
   end

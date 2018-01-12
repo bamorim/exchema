@@ -1,5 +1,15 @@
 defmodule Exchema.Error do
+  @moduledoc """
+  This module contains helpers to deal with Exchema errors.
+  """
+
   alias Exchema.Predicates, as: P
+
+  @doc """
+  Flattens a list of errors by the `map` and `list`
+  predicate errors and flattening them into a 4-tuple with
+  the first element being the path.
+  """
   def flattened(errors) do
     errors
     |> Enum.flat_map(&flatten/1)

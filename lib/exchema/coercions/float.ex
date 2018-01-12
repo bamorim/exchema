@@ -1,4 +1,5 @@
 defmodule Exchema.Coercions.Float do
+  @moduledoc false
   def coerce(integer) when is_integer(integer), do: integer * 1.0
   def coerce(str) when is_binary(str) do
     case Float.parse(str) do

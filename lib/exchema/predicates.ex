@@ -29,11 +29,9 @@ defmodule Exchema.Predicates do
 
   """
   def fun(val, fun) do
-    try do
-      fun.(val)
-    rescue
-      _ -> {:error, :thrown}
-    end
+    fun.(val)
+  rescue
+    _ -> {:error, :thrown}
   end
 
   @doc """

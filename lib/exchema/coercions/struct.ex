@@ -1,4 +1,5 @@
 defmodule Exchema.Coercions.Struct do
+  @moduledoc false
   def coerce(input, struct_mod, fields) do
     struct_mod
     |> struct

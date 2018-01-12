@@ -8,7 +8,10 @@ defmodule Exchema.Mixfile do
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
-      package: package()
+      package: package(),
+      docs: [
+        groups_for_modules: groups_for_modules()
+      ]
     ]
   end
 
@@ -34,6 +37,12 @@ defmodule Exchema.Mixfile do
       licenses: ["Apache 2.0"],
       maintainers: ["Bernardo Amorim"],
       links: %{"GitHub" => "https://github.com/bamorim/exchema"}
+    ]
+  end
+
+  defp groups_for_modules do
+    [
+      "Types": ~r/^Exchema\.Types/
     ]
   end
 end
