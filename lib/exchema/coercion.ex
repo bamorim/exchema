@@ -5,8 +5,6 @@ defmodule Exchema.Coercion do
   This will probable be extracted into its own library later.
   """
 
-  alias Exchema.Coercions, as: C
-  alias Exchema.Types, as: T
   alias Exchema.Type
 
   # Match on some concrete types

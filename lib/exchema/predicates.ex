@@ -351,7 +351,7 @@ defmodule Exchema.Predicates do
   end
   defp length_bounds(_), do: {nil, nil}
 
-  defp compare_length(l, {nil, nil}), do: :ok
+  defp compare_length(_, {nil, nil}), do: :ok
   defp compare_length(l, {min, nil}) do
     if min > l, do: {:error, :invalid_length}, else: :ok
   end
