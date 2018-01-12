@@ -83,4 +83,28 @@ defmodule CoercionTest do
     input = %{"child" => %{"child" => %{"child" => nil}}}
     assert %Nested{child: %Nested{child: %Nested{child: nil}}} = coerce(input, Nested)
   end
+
+  test "we can coerce date/time types from strings" do
+    assert %{day: 1, month: 2, year: 2000} = coerce("2000-02-01", T.Date)
+    assert %{hour: 22, minute: 11, second: 0} = coerce("22:11:00", T.Time)
+    assert %{year: 2000, second: 30} = coerce("2000-01-01T00:00:30", T.NaiveDateTime)
+    assert %{hour: 1} = coerce("2000-01-01T01:00:00Z", T.DateTime)
+    assert %{hour: 2} = coerce("2000-01-01T01:00:00-01:00", T.DateTime)
+  end
+
+  test "we can coerce between date/time types" do
+    naive = ~N[2000-01-01T12:00:00]
+    assert %Date{year: 2000} = coerce(naive, T.Date)
+    assert %Time{hour: 12} = coerce(naive, T.Time)
+    assert %DateTime{year: 2000, zone_abbr: "UTC"} = coerce(naive, T.DateTime)
+
+    {:ok, datetime} = DateTime.from_naive(naive, "Etc/UTC")
+    assert %Date{year: 2000} = coerce(datetime, T.Date)
+    assert %Time{hour: 12} = coerce(datetime, T.Time)
+    assert %NaiveDateTime{year: 2000} = coerce(datetime, T.NaiveDateTime)
+
+    date = ~D[2000-01-01]
+    assert %DateTime{year: 2000, day: 01, zone_abbr: "UTC"} = coerce(date, T.DateTime)
+    assert %NaiveDateTime{year: 2000, day: 01} = coerce(date, T.NaiveDateTime)
+  end
 end

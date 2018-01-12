@@ -4,14 +4,6 @@ defmodule Types.OptionalTest do
   alias Exchema.Types, as: T
   import Exchema, only: [is?: 2, errors: 2]
 
-  test "it can be nil" do
-    assert is?(nil, T.Optional)
-  end
-
-  test "and can be anything" do
-    assert is?("something", T.Optional)
-  end
-
   test "but can have a specific inner type" do
     refute is?("something", {T.Optional, T.Integer})
   end

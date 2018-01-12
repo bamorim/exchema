@@ -1,4 +1,7 @@
 defmodule Exchema.Coercions do
+  alias Exchema.Types, as: T
+  alias __MODULE__, as: C
+
   @coerces [
     T.Optional,
     T.Integer,
@@ -6,7 +9,11 @@ defmodule Exchema.Coercions do
     T.Number,
     T.String,
     T.Boolean,
-    T.Struct
+    T.Struct,
+    T.Date,
+    T.Time,
+    T.DateTime,
+    T.NaiveDateTime
   ]
 
   @moduledoc """
@@ -14,9 +21,6 @@ defmodule Exchema.Coercions do
 
   It coerces #{@coerces |> Enum.map(&to_string/1) |> Enum.join(", ") |> String.replace("Elixir.T.", "")}
   """
-
-  alias Exchema.Types, as: T
-  alias __MODULE__, as: C
 
   @doc false
   def coerces?({type, _}), do: coerces?(type)
@@ -33,4 +37,8 @@ defmodule Exchema.Coercions do
   def coerce(input, T.Number), do: C.Float.coerce(input)
   def coerce(input, T.String), do: C.String.coerce(input)
   def coerce(input, T.Boolean), do: C.Boolean.coerce(input)
+  def coerce(input, T.Date), do: C.Date.coerce(input)
+  def coerce(input, T.Time), do: C.Time.coerce(input)
+  def coerce(input, T.DateTime), do: C.DateTime.coerce(input)
+  def coerce(input, T.NaiveDateTime), do: C.NaiveDateTime.coerce(input)
 end
