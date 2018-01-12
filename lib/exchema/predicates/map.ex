@@ -6,8 +6,8 @@ defmodule Exchema.Predicates.Map do
 
   defp do_map(map, opts) do
     fields = Keyword.get(opts, :fields)
-    keys = Keyword.get(opts, :keys)
-    values = Keyword.get(opts, :values)
+    keys = Keyword.get(opts, :keys, :any)
+    values = Keyword.get(opts, :values, :any)
     result =
       {:ok, map}
       |> check_map_fields(fields)
@@ -34,7 +34,7 @@ defmodule Exchema.Predicates.Map do
   end
 
   defp check_map_keys({:error, err}, _), do: {:error, err}
-  defp check_map_keys({:ok, map}, nil), do: {:ok, map}
+  defp check_map_keys({:ok, map}, :any), do: {:ok, map}
   defp check_map_keys({:ok, map}, key_type) do
     case map_key_errors(map, key_type) do
       {:error, errors} ->
@@ -45,7 +45,7 @@ defmodule Exchema.Predicates.Map do
   end
 
   defp check_map_values({:error, err}, _), do: {:error, err}
-  defp check_map_values({:ok, map}, nil), do: {:ok, map}
+  defp check_map_values({:ok, map}, :any), do: {:ok, map}
   defp check_map_values({:ok, map}, values) do
     case map_value_errors(map, values) do
       {:error, errors} ->

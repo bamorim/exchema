@@ -16,14 +16,8 @@ defmodule Exchema.Coercion do
     get_coercion_fun(type).(input)
   end
   # Refined Type
-  def coerce(input, {:ref, supertype, refinements}) do
-    cond do
-      is_struct(refinements) ->
-        coerce_struct(input, refinements)
-
-      true ->
-        coerce(input, supertype)
-    end
+  def coerce(input, {:ref, supertype, _}) do
+    coerce(input, supertype)
   end
 
   defp get_coercion_fun({type_mod, type_args} = type) do
@@ -37,49 +31,5 @@ defmodule Exchema.Coercion do
       true ->
         &(coerce(&1, Type.resolve_type(type)))
     end
-  end
-
-  defp coerce_struct(%{} = input, refinements) do
-    struct_mod = Keyword.get(refinements, :is_struct)
-
-    struct_mod
-    |> struct
-    |> Map.keys
-    |> Enum.filter(&(&1 != :__struct__))
-    |> Enum.reduce(struct(struct_mod),
-      fn (key, output) ->
-        Map.put(output, key, fuzzy_get(input, key))
-      end
-    )
-    |> coerce_map_values(refinements)
-  end
-
-  defp coerce_map_values(map, refinements) do
-    map_fields =
-      refinements
-      |> Keyword.get(:map, [])
-      |> Keyword.get(:fields)
-
-    if map_fields do
-      map_fields
-      |> Enum.reduce(map,
-        fn({key, type}, map) ->
-          Map.put(map, key, coerce(Map.get(map, key), type))
-        end
-      )
-    else
-      map
-    end
-  end
-
-  defp is_struct(refinements) do
-    Keyword.has_key? refinements, :is_struct
-  end
-
-  defp fuzzy_get(map, key) do
-    [&(&1), &to_string/1]
-    |> Enum.map(&(Map.get(map, &1.(key))))
-    |> Enum.filter(&(&1))
-    |> List.first
   end
 end

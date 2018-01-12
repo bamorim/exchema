@@ -1,7 +1,10 @@
 defmodule Exchema.Type do
   @type t :: module
 
-  @type predicate_result :: :ok | {:error, any}
+  @type error :: {:error, any}
+  @type predicate_failure :: false | error | [error, ...]
+  @type predicate_success :: :ok | true | []
+  @type predicate_result :: predicate_failure | predicate_success
   @type predicate_fun :: ((any, any) -> predicate_result)
   @type predicate :: {module, atom} | atom
   @type predicate_spec :: {predicate, any}
