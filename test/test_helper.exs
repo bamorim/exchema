@@ -5,6 +5,11 @@ defmodule Predicates do
   def min(value, min) when value >= min, do: :ok
   def min(_, _), do: {:error, :should_be_bigger}
 
+  def err_list(_, _), do: [{:error, 1}, {:error, 2}]
+  def err_false(_, _), do: false
+  def ok_list(_, _), do: []
+  def ok_true(_, _), do: true
+
   defmodule Overrides do
     def is(_, _), do: {:error, :custom_error}
   end

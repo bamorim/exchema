@@ -4,41 +4,35 @@ defmodule Exchema.Predicates do
   """
 
   @doc """
-  Executes a function and check the result.
-  The result can be either `true`, `false`, `:ok` or `{:error, err}`
-
-  If the result is `true` or `:ok` the predicate will succeed.
-  If it is `false` it will fail with default `{:error, :invalid}` value.
-  It can be given a specific error `{:error, error}` if wanted
+  Just applies the function as if it was a predicate.
+  It also checks for exceptions to allow simpler functions.
 
   ## Examples
 
       iex> Exchema.Predicates.fun(1, &is_integer/1)
-      :ok
+      true
 
       iex> Exchema.Predicates.fun("1", &is_integer/1)
-      {:error, :invalid}
+      false
 
       iex> Exchema.Predicates.fun(1, &(&1 > 0))
-      :ok
+      true
 
       iex> Exchema.Predicates.fun(0, &(&1 > 0))
-      {:error, :invalid}
+      false
 
       iex> Exchema.Predicates.fun(1, fn _ -> {:error, :custom_error} end)
       {:error, :custom_error}
 
+      iex> Exchema.Predicates.fun(1, fn _ -> raise RuntimeError end)
+      {:error, :thrown}
+
   """
   def fun(val, fun) do
-    case fun.(val) do
-      true ->
-        :ok
-      :ok ->
-        :ok
-      false ->
-        {:error, :invalid}
-      {:error, e} ->
-        {:error, e}
+    try do
+      fun.(val)
+    rescue
+      _ -> {:error, :thrown}
     end
   end
 

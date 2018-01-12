@@ -71,4 +71,23 @@ defmodule ExchemaTest do
     assert Exchema.is?(1, type)
     refute Exchema.is?(-1, type)
   end
+
+  test "it aggregates predicate errors" do
+    type = {:ref, IntegerType, [{{Predicates, :min}, 0}, {{Predicates, :min}, 1}]}
+    assert [{_,0,:should_be_bigger}, {_, 1, :should_be_bigger}] = Exchema.errors(-1, type)
+  end
+
+  test "it allos predicates to return a list of errors" do
+    type_err = {:ref, :any, [{{Predicates, :err_list}, nil}]}
+    type_ok = {:ref, :any, [{{Predicates, :ok_list}, nil}]}
+    assert [{_,_,1}, {_,_,2}] = Exchema.errors(1, type_err)
+    assert [] = Exchema.errors(1, type_ok)
+  end
+
+  test "it allows predicates to just return false or true" do
+    type_err = {:ref, :any, [{{Predicates, :err_false}, nil}]}
+    type_ok = {:ref, :any, [{{Predicates, :ok_true}, nil}]}
+    assert [{_,_,:invalid}] = Exchema.errors(1, type_err)
+    assert [] = Exchema.errors(1, type_ok)
+  end
 end

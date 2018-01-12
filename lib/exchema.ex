@@ -29,8 +29,13 @@ defmodule Exchema do
   @spec predicate_errors(Type.predicate_spec, any, [{atom, any}]) :: [error]
   defp predicate_errors({{mod, fun}, opts}, val, _) do
     case apply(mod, fun, [val, opts]) do
-      {:error, err} ->
-        [{{mod, fun}, opts, err}]
+      false ->
+        [{{mod, fun}, opts, :invalid}]
+      errors when is_list(errors) ->
+        errors
+        |> Enum.map(&(format_predicate_error(mod, fun, opts, &1)))
+      {:error, _} = error ->
+        [format_predicate_error(mod, fun, opts, error)]
       _ ->
         []
     end
@@ -44,6 +49,10 @@ defmodule Exchema do
       val,
       g_opts
     )
+  end
+
+  defp format_predicate_error(mod, fun, opts, {:error, err}) do
+    {{mod, fun}, opts, err}
   end
 
   defp pred_mod(g_opts, pred_key) do
