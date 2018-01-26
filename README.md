@@ -268,6 +268,33 @@ iex> Exchema.is?("f4fd18af-1e8d-4262-a655-c1fa83ae9162", MyUUID)
 true
 ```
 
+## Coercion
+
+This should probably move to another library, but for now it is bundled here.
+
+`Exchema.Coercion` can receive some input and coerce to a specific type.
+
+```elixir
+iex> Exchema.Coercion.coerce("2018-01-01", Exchema.Types.Date)
+~D[2018-01-01]
+
+defmodule MyStruct do
+  use Exchema.Struct, fields: [
+    foo: Exchema.Types.Integer,
+    bar: Exchema.Types.Date
+  ]
+end
+
+iex> Exchema.Coercion.coerce(%{"foo" => 1, "bar" => "2018-01-01"}, MyStruct)
+%MyStruct{
+  foo: 1,
+  bar: ~D[2018-01-01]
+}
+
+iex> Exchema.Coercion.coerce(["1", 2, 3.0], {Exchema.Types.List, Exchema.Types.Integer})
+[1,2,3]
+```
+
 ## Installation
 
 Add `exchema` to your list of dependencies in `mix.exs`:
