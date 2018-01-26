@@ -4,14 +4,12 @@ defmodule Exchema.Mixfile do
   def project do
     [
       app: :exchema,
-      version: "0.2.0",
+      version: "0.2.1",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
       package: package(),
-      docs: [
-        groups_for_modules: groups_for_modules()
-      ]
+      docs: docs()
     ]
   end
 
@@ -19,6 +17,15 @@ defmodule Exchema.Mixfile do
   def application do
     [
       extra_applications: [:logger]
+    ]
+  end
+
+  defp docs do
+    [
+      groups_for_modules: groups_for_modules(),
+      extras: [
+        "README.md"
+      ]
     ]
   end
 

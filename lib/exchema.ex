@@ -1,6 +1,6 @@
 defmodule Exchema do
   @moduledoc """
-  Documentation for Exchema.
+  Exchema is a library for defining data structures using refinement types.
   """
 
   alias Exchema.Type
