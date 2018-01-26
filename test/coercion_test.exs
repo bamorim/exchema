@@ -107,4 +107,14 @@ defmodule CoercionTest do
     assert %DateTime{year: 2000, day: 01, zone_abbr: "UTC"} = coerce(date, T.DateTime)
     assert %NaiveDateTime{year: 2000, day: 01} = coerce(date, T.NaiveDateTime)
   end
+
+  test "we can coerce tuples to list" do
+    result = coerce({1,2,3}, T.List)
+    assert [1,2,3] = result
+  end
+
+  test "we can coerce lists" do
+    result = coerce(["1", 2, 3.1], {T.List, T.Integer})
+    assert [1,2,3] = result
+  end
 end
