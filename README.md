@@ -179,6 +179,33 @@ iex> Exchema.is?(%Coord{long: 10.0, lat: 10.0}, Coord)
 true
 ```
 
+## Exchema.Struct
+
+However, defining struct types can be really cumbersome and thats why we have
+the `Exchema.Struct` module which you can use as
+
+```elixir
+defmodule Coord do
+  use Exchema.Struct, fields: [
+    long: Exchema.Types.Number,
+    lat: Exchema.Types.Number
+  ]
+end
+```
+
+And you can alias `Exchema.Types` to have smaller type definitions.
+
+```elixir
+defmodule Coord do
+  alias Exchema.Types, as: T
+
+  use Exchema.Struct, fields: [
+    long: T.Number,
+    lat: T.Number
+  ]
+end
+```
+
 ## Defining your own predicate
 
 Defining a predicate is as simple as defining a function.
