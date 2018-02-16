@@ -1,6 +1,6 @@
 defmodule Exchema.Coercions.Struct do
   @moduledoc false
-  def coerce(input, struct_mod, fields) do
+  def coerce(input, struct_mod, fields) when is_map(input) do
     struct_mod
     |> struct
     |> Map.keys
@@ -12,6 +12,7 @@ defmodule Exchema.Coercions.Struct do
     )
     |> coerce_values(fields)
   end
+  def coerce(input, _, _), do: input
 
   defp coerce_values(map, fields) do
     fields
