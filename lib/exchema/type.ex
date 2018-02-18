@@ -25,11 +25,11 @@ defmodule Exchema.Type do
   @callback __type__(type_params) :: type_spec
 
   @spec resolve_type(Type.type_reference) :: Type.t | Type.refined_type
-  def resolve_type({type, param}) when is_atom(param) do
-    type.__type__({param})
-  end
-  def resolve_type({type, params}) do
+  def resolve_type({type, params}) when is_tuple(params) do
     type.__type__(params)
+  end
+  def resolve_type({type, param}) do
+    type.__type__({param})
   end
   def resolve_type(type) do
     type.__type__({})
