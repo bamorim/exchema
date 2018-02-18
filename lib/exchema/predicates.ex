@@ -112,12 +112,22 @@ defmodule Exchema.Predicates do
       iex> Exchema.Predicates.is_struct(NaiveDateTime.utc_now, DateTime)
       {:error, :invalid_struct}
 
+      iex> Exchema.Predicates.is_struct(DateTime.utc_now, [NaiveDateTime, DateTime])
+      :ok
+
+      iex> Exchema.Predicates.is_struct(Date.utc_today, [NaiveDateTime, DateTime])
+      {:error, :invalid_struct}
+
   """
-  def is_struct(%{__struct__: _}, nil), do: :ok
-  def is_struct(%{__struct__: _}, :any), do: :ok
-  def is_struct(%{__struct__: real}, expected) when expected == real, do: :ok
-  def is_struct(%{__struct__: _}, _), do: {:error, :invalid_struct}
+  def is_struct(%{__struct__: real}, expected), do: check_struct(real, expected)
   def is_struct(_, _), do: {:error, :not_a_struct}
+
+  defp check_struct(real, expected) when expected == real, do: :ok
+  defp check_struct(_, expected) when expected in [nil, :any], do: :ok
+  defp check_struct(real, alloweds) when is_list(alloweds) do
+    if real in alloweds, do: :ok, else: {:error, :invalid_struct}
+  end
+  defp check_struct(_,_), do: {:error, :invalid_struct}
 
   @doc """
   Checks a map for its key types, value types or specific value types (for a given key).
