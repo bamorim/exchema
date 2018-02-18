@@ -26,6 +26,7 @@ defmodule Exchema.Types.Struct do
   }
 
   @doc false
+  def __type__({}), do: __type__({:any, []})
   def __type__({mod}), do: __type__({mod, []})
   def __type__({mod, fields}) do
     {

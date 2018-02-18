@@ -114,6 +114,7 @@ defmodule Exchema.Predicates do
 
   """
   def is_struct(%{__struct__: _}, nil), do: :ok
+  def is_struct(%{__struct__: _}, :any), do: :ok
   def is_struct(%{__struct__: real}, expected) when expected == real, do: :ok
   def is_struct(%{__struct__: _}, _), do: {:error, :invalid_struct}
   def is_struct(_, _), do: {:error, :not_a_struct}
