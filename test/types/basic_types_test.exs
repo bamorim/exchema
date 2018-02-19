@@ -8,18 +8,22 @@ defmodule BasicTypesTest do
     assert is?(1, T.Integer)
     refute is?(1.0, T.Integer)
     refute is?("1", T.Integer)
+    signal_tests(T.Integer, 1)
   end
 
   test "float" do
     assert is?(1.0, T.Float)
     refute is?(1, T.Float)
     refute is?("1", T.Float)
+    signal_tests(T.Float, 1.0)
   end
 
   test "number" do
     assert is?(1, T.Number)
     assert is?(1.0, T.Number)
     refute is?("1", T.Number)
+    signal_tests(T.Integer, 1)
+    signal_tests(T.Float, 1.0)
   end
 
   test "string" do
@@ -65,5 +69,21 @@ defmodule BasicTypesTest do
   test "Time" do
     assert is?(Time.utc_now, T.Time)
     refute is?(DateTime.utc_now, T.Time)
+  end
+
+  defp signal_tests(mod, base) do
+    assert is?(1 * base, Module.concat(mod, Positive))
+    refute is?(0 * base, Module.concat(mod, Positive))
+
+    assert is?(-1 * base, Module.concat(mod, Negative))
+    refute is?(0 * base, Module.concat(mod, Negative))
+
+    assert is?(1 * base, Module.concat(mod, NonNegative))
+    assert is?(0 * base, Module.concat(mod, NonNegative))
+    refute is?(-1 * base, Module.concat(mod, NonNegative))
+
+    assert is?(-1 * base, Module.concat(mod, NonPositive))
+    assert is?(0 * base, Module.concat(mod, NonPositive))
+    refute is?(1 * base, Module.concat(mod, NonPositive))
   end
 end
