@@ -42,9 +42,16 @@ defmodule Exchema.Struct do
 
   @doc false
   defmacro __using__(opts \\ []) do
-    fields = Keyword.get(opts, :fields, [])
-    struct_fields = fields |> Enum.map(fn {k, _} -> {k, nil} end)
-    schema_predicates = Keyword.get(opts, :check_schema, [])
+    extend = Keyword.get(opts, :extend)
+
+    explicit_fields = Keyword.get(opts, :fields, [])
+    fields = __fields__(extend, explicit_fields)
+    struct_fields = quote do
+      unquote(fields) |> Enum.map(fn {k, _} -> {k, nil} end)
+    end
+
+    schema_pred_explicit = Keyword.get(opts, :check_schema, [])
+    schema_predicates = __schema_predicates__(extend, schema_pred_explicit)
 
     quote do
       defstruct unquote(struct_fields)
@@ -55,6 +62,30 @@ defmodule Exchema.Struct do
           {Exchema.Types.Struct, {__MODULE__, unquote(fields)}},
           unquote(schema_predicates)
         }
+      end
+    end
+  end
+
+  defp __fields__(nil, fields), do: fields
+  defp __fields__(mod, fields) do
+    quote do
+      case Exchema.Type.resolve_type(unquote(mod)) do
+        {:ref, {Exchema.Types.Struct, {_, extended_fields}}, _} ->
+          Keyword.merge(extended_fields, unquote(fields))
+        _ ->
+          unquote(fields)
+      end
+    end
+  end
+
+  defp __schema_predicates__(nil, predicates), do: predicates
+  defp __schema_predicates__(mod, predicates) do
+    quote do
+      case Exchema.Type.resolve_type(unquote(mod)) do
+        {:ref, {Exchema.Types.Struct, {_, _}}, extended_predicates} ->
+          extended_predicates ++ unquote(predicates)
+        _ ->
+          unquote(predicates)
       end
     end
   end

@@ -22,14 +22,25 @@ defmodule Exchema.Coercion do
 
   defp get_coercion_fun({type_mod, type_args} = type) do
     cond do
-      Exchema.Coercions.coerces?(type) ->
-        &(Exchema.Coercions.coerce(&1, type))
       :erlang.function_exported(type_mod, :__coerce__, 2) ->
         &(type_mod.__coerce__(&1, type_args))
       :erlang.function_exported(type_mod, :__coerce__, 1) ->
         &type_mod.__coerce__/1
+      coercion_mod(type) ->
+        &(coercion_mod(type).coerce(&1, type))
       true ->
         &(coerce(&1, Type.resolve_type(type)))
     end
+  end
+
+  defp coercion_mod(type) do
+    coercion_mods
+    |> Enum.find(&(&1.coerces?(type)))
+  end
+
+  defp coercion_mods do
+    [
+      Exchema.Coercions
+    ] |> List.flatten
   end
 end

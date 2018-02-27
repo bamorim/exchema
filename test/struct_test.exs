@@ -14,6 +14,14 @@ defmodule StructTest do
     ]
   end
 
+  defmodule ExStruct do
+    use Exchema.Struct,
+      extend: Struct,
+      fields: [
+        baz: Exchema.Types.Integer
+      ]
+  end
+
   test "it generates a struct" do
     assert :erlang.function_exported(Struct, :__struct__, 1)
   end
@@ -37,5 +45,11 @@ defmodule StructTest do
 
   test "type tests for schema" do
     refute Exchema.is?(%Struct{foo: 1, bar: [1, 0]}, Struct)
+  end
+
+  test "it can extend an existing struct" do
+    assert Exchema.is?(%ExStruct{foo: 1, bar: [1, 2], baz: 10}, ExStruct)
+    refute Exchema.is?(%ExStruct{foo: 1, bar: [1, 2], baz: nil}, ExStruct)
+    refute Exchema.is?(%ExStruct{foo: 1, bar: [1, 0], baz: 10}, ExStruct)
   end
 end
