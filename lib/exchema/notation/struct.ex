@@ -1,4 +1,5 @@
 defmodule Exchema.Notation.Struct do
+  @moduledoc false
   def __struct(fields) do
     quote do
       @super_type {Exchema.Types.Struct, {__MODULE__, unquote(fields)}}

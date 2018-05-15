@@ -42,14 +42,6 @@ defmodule Exchema.Notation do
     wrapper(mod, __subtype(suptype, refinements), block)
   end
 
-  defmacro newtype(mod) do
-    wrapper(mod, __subtype(:any, []), @empty)
-  end
-
-  defmacro newtype(mod, [do: block]) do
-    wrapper(mod, __subtype(:any, []), block)
-  end
-
   defmacro newtype(mod, suptype) do
     wrapper(mod, __subtype(suptype, []), @empty)
   end

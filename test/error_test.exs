@@ -27,7 +27,7 @@ defmodule Exchema.ErrorTest do
     ])
     root_error = err
     errors = [nested_error, root_error]
-    flattened_errors = errors |> Exchema.Error.flattened
+    flattened_errors = errors |> Exchema.flatten_errors
 
     assert [
       {[:addresses, 0, :city], _, _, :some_error},

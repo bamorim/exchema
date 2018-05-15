@@ -3,6 +3,11 @@ defmodule Exchema.Predicates do
   Exschema default predicates library
   """
 
+  @type error :: {:error, any}
+  @type failure :: false | error | [error, ...]
+  @type success :: :ok | true | []
+  @type result :: failure | success
+
   @doc """
   Just applies the function as if it was a predicate.
   It also checks for exceptions to allow simpler functions.
@@ -28,6 +33,7 @@ defmodule Exchema.Predicates do
       {:error, :thrown}
 
   """
+  @spec fun(any, ((any) -> result)) :: result
   def fun(val, fun) do
     fun.(val)
   rescue

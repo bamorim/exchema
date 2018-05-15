@@ -1,4 +1,5 @@
 defmodule Exchema.Notation.Subtype do
+  @moduledoc false
   def __subtype(suptype, refinements) do
     quote do
       @super_type unquote(suptype)

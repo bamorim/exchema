@@ -99,7 +99,7 @@ In the case of list, you can just use and not specify it directly, so
 `{Exchema.Types.List, :any}`.
 
 Some types can have multiple parameters, e.g. a map.
-`{Exchema.Types.Map, {Exchema.Types.String, Exchema.Types.Integer}}` represents
+`{Exchema.Types.Map, {Exchema.Types.String, Exchema.Types.Integer}}` repre"/auth/auth0"sents
 a map from strings to integer.
 
 Types with 0 params can be represented just by the module name.
@@ -107,7 +107,7 @@ Types with 1 param can be represented by a tuple `{type, argument}`
 Types with N params can be represented by a tuple `{type, arguments}` where
 arguments is a tuple with N elements.
 
-```
+```elixir
 iex> Exchema.is?([1,2,3], {Exchema.Types.List, Exchema.Types.Integer})
 true
 
@@ -120,6 +120,18 @@ true
 
 ## Defining your own types
 
+When defining types we need to understand `subtype` and `structure` and `refine`.
+
+### Subtype
+
+It defines a subtype given the original type and a list of refinements.
+
+```elixir
+defmodule ShortString do
+  import Exchema.Notation
+  subtype Exchema.Types.String, []
+end
+```
 
 ## About Types
 

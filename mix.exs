@@ -22,6 +22,7 @@ defmodule Exchema.Mixfile do
 
   defp docs do
     [
+      main: "Exchema",
       groups_for_modules: groups_for_modules(),
       extras: [
         "README.md"
