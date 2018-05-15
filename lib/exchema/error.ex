@@ -3,12 +3,26 @@ defmodule Exchema.Error do
   This module contains helpers to deal with Exchema errors.
   """
 
-  alias Exchema.Predicates, as: P
-
   @doc """
-  Flattens a list of errors by the `map` and `list`
-  predicate errors and flattening them into a 4-tuple with
-  the first element being the path.
+  Flattens a list of errors that follows the `:nested_errors`
+  pattern where the error returned follow this structure:
+
+  ```
+  {
+    {predicate, predicate_opts, {
+      :nested_errors,
+      [
+        {key, error},
+        {key, error}
+      ]
+    }
+  }
+  ```
+
+  The returned result is a list of a 4-tuple where the
+  first element is the path of keys to reach the error and
+  the rest is the normal 3-tuple error elements (predicate,
+  predicate options and the error itself)
   """
   def flattened(errors) do
     errors
@@ -17,10 +31,7 @@ defmodule Exchema.Error do
   end
 
   defp flatten(errors, path \\ [])
-  defp flatten({{P, :list}, _, {:nested_errors, errors}}, path) do
-    flatten({{P, :map}, nil, {:nested_errors, errors}}, path)
-  end
-  defp flatten({{P, :map}, _, {:nested_errors, errors}}, path) do
+  defp flatten({_, _, {:nested_errors, errors}}, path) do
     errors
     |> Enum.flat_map(fn {key, key_errors} ->
       key_errors
