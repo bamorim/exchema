@@ -4,35 +4,20 @@ defmodule CoercionTest do
   @moduletag :coercion
 
   import Exchema.Coercion
+  import Exchema.Notation
   alias Exchema.Types, as: T
 
-  defmodule MyAny do
-    def __type__({}) do
-      {:ref, :any, []}
-    end
-  end
+  newtype MyAny, :any
 
-  defmodule CustomCoercion do
-    def __type__({}) do
-      {:ref, :any, []}
-    end
-
+  newtype CustomCoercion, :any do
     def __coerce__(input) do
       input <> input
     end
   end
 
-  defmodule Struct do
-    use Exchema.Struct, fields: [
-      foo: T.Integer
-    ]
-  end
+  structure Struct, [foo: T.Integer]
 
-  defmodule Nested do
-    use Exchema.Struct, fields: [
-      child: {T.Optional, __MODULE__}
-    ]
-  end
+  structure Nested, [child: {T.Optional, Nested}]
 
   test "Coercion to any doesnt change anything" do
     assert "1234" = coerce("1234", :any)
