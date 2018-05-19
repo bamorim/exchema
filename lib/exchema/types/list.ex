@@ -15,6 +15,6 @@ defmodule Exchema.Types.List do
   @doc false
   def __type__({}), do: __type__({:any})
   def __type__({type}) do
-    {:ref, :any, [{{Predicates, :list}, element_type: type}]}
+    {:ref, :any, [{{Predicates, :list}, type}]}
   end
 end
