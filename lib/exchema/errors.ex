@@ -7,7 +7,7 @@ defmodule Exchema.Errors do
     errors(val, supertype, opts) ++ predicates_errors(predicates, val, opts)
   end
   def errors(val, type_ref, opts) do
-    errors(val, resolve_type(type_ref), opts)
+    errors(val, Exchema.Type.resolve_type(type_ref), opts)
   end
 
   def flatten_errors(errors) do
@@ -62,16 +62,6 @@ defmodule Exchema.Errors do
       (Application.get_env(:exchema, :predicates) || []),
       Exchema.Predicates
     ] |> List.flatten
-  end
-
-  defp resolve_type({type, params}) when is_tuple(params) do
-    type.__type__(params)
-  end
-  defp resolve_type({type, param}) do
-    type.__type__({param})
-  end
-  defp resolve_type(type) do
-    type.__type__({})
   end
 
   defp flatten_error(errors, path \\ [])
