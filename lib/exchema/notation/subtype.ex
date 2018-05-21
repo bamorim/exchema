@@ -1,41 +1,35 @@
 defmodule Exchema.Notation.Subtype do
   @moduledoc false
-  def __subtype(suptype, refinements) do
+  def __subtype(suptype, refinements_spec) do
     quote do
       @super_type unquote(suptype)
-      @refinements [:erlang.term_to_binary(unquote(refinements_for(refinements)))]
+      @refinement_count 0
+      unquote(__add_refinements(refinements_spec))
+      def __exchema_refinement_0(), do: []
       @before_compile Exchema.Notation.Subtype
     end
   end
 
-  def __refine(refinements) do
-    quote do
-      @refinements [
-        :erlang.term_to_binary(unquote(refinements_for(refinements))) |
-        @refinements
-      ]
+  def __add_refinements(refinements_spec) do
+    refinements = Macro.escape(refinements_for(refinements_spec))
+    base_fname = "__exchema_refinement"
+    quote bind_quoted: [refinements: refinements, base_fname: base_fname] do
+      @refinement_count (@refinement_count + 1)
+      def unquote(:"#{base_fname}_#{@refinement_count}")() do
+        unquote(:"#{base_fname}_#{@refinement_count-1}")() ++ unquote(refinements)
+      end
     end
   end
 
   defmacro __before_compile__(_env) do
-    quote do
-      unquote(__define_type())
-    end
-  end
-
-  def __define_type do
-    quote do
+    base_fname = "__exchema_refinement"
+    quote bind_quoted: [base_fname: base_fname] do
       def __type__({}) do
-        predicates =
-          @refinements
-          |> case do
-               [] -> []
-               list ->
-                 list
-                 |> Enum.map(&:erlang.binary_to_term/1)
-                 |> Enum.reduce(&(&1 ++ &2))
-             end
-        {:ref, @super_type, predicates}
+        {
+          :ref,
+          @super_type,
+          unquote(:"#{base_fname}_#{@refinement_count}")()
+        }
       end
     end
   end

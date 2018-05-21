@@ -55,7 +55,7 @@ defmodule Exchema.Notation do
   end
 
   defmacro refine(refinements) do
-    N.Subtype.__refine(refinements)
+    N.Subtype.__add_refinements(refinements)
   end
 
   defp wrapper(nil, content, nil), do: content

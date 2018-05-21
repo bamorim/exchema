@@ -2,10 +2,8 @@ defmodule Exchema.Notation.Struct do
   @moduledoc false
   def __struct(fields) do
     quote do
-      @super_type {Exchema.Types.Struct, {__MODULE__, unquote(fields)}}
       defstruct unquote(__field_keys(fields))
-      @refinements []
-      @before_compile Exchema.Notation.Subtype
+      Exchema.Notation.subtype({Exchema.Types.Struct, {__MODULE__, unquote(fields)}}, [])
     end
   end
 
