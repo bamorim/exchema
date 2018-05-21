@@ -7,9 +7,9 @@ defmodule CoercionTest do
   import Exchema.Notation
   alias Exchema.Types, as: T
 
-  newtype MyAny, :any
+  subtype MyAny, :any, []
 
-  newtype CustomCoercion, :any do
+  subtype CustomCoercion, :any, [] do
     def __coerce__(input) do
       input <> input
     end

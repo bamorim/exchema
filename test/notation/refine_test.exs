@@ -3,7 +3,7 @@ defmodule Notation.RefineTest do
   import Exchema.Notation
   alias Exchema.Types, as: T
 
-  newtype Type, T.Integer do
+  subtype Type, T.Integer, [] do
     refine [inclusion: (0..100)]
     refine &(&1 < 5)
   end

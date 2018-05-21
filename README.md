@@ -12,9 +12,9 @@ It also comes with a neat DSL to help you define your types.
 
 ```elixir
 import Exchema.Notation
-newtype Name, Exchema.Types.String
+subtype Name, Exchema.Types.String, []
 subtype Country, Exchema.Types.Atom, [inclusion: ~w{brazil canada portugal}a]
-type Metadata, &(is_list(&1) || is_map(&1))
+subtype Metadata, :any, &(is_list(&1) || is_map(&1))
 structure FullName, [first: Name, last: Name]
 
 defmodule MyStructure do

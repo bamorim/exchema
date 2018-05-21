@@ -18,18 +18,6 @@ defmodule Exchema.Notation do
     wrapper(mod, __struct(fields), block)
   end
 
-  defmacro type(refinements) do
-    __type(refinements)
-  end
-
-  defmacro type(mod, refinements) do
-    wrapper(mod, __type(refinements), @empty)
-  end
-
-  defmacro type(mod, refinements, [do: block]) do
-    wrapper(mod, __type(refinements), block)
-  end
-
   defmacro subtype(suptype, refinements) do
     __subtype(suptype, refinements)
   end
@@ -40,18 +28,6 @@ defmodule Exchema.Notation do
 
   defmacro subtype(mod, suptype, refinements, [do: block]) do
     wrapper(mod, __subtype(suptype, refinements), block)
-  end
-
-  defmacro newtype(suptype) do
-    __subtype(suptype, [])
-  end
-
-  defmacro newtype(mod, suptype) do
-    wrapper(mod, __subtype(suptype, []), @empty)
-  end
-
-  defmacro newtype(mod, suptype, [do: block]) do
-    wrapper(mod, __subtype(suptype, []), block)
   end
 
   defmacro refine(refinements) do
@@ -75,10 +51,6 @@ defmodule Exchema.Notation do
 
   defp __struct(fields) do
     N.Struct.__struct(fields)
-  end
-
-  defp __type(refinements) do
-    N.Type.__type(refinements)
   end
 
   defp __subtype(suptype, refinements) do
