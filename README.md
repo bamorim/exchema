@@ -10,43 +10,73 @@ It uses the idea of **refinement types**, in which we have a global type
 
 It also comes with a neat DSL to help you define your types.
 
+The macros you need to keep in mind are `subtype/2`, `structure/1` and `refine/1`
+
 ```elixir
 import Exchema.Notation
-subtype Name, Exchema.Types.String, []
-subtype Country, Exchema.Types.Atom, [inclusion: ~w{brazil canada portugal}a]
-subtype Metadata, :any, &(is_list(&1) || is_map(&1))
-structure FullName, [first: Name, last: Name]
+
+defmodule Name, do: subtype(Exchema.Types.String, [])
+
+defmodule Continent do
+  subtype(Exchema.Types.Atom, [inclusion: ~w{europe north_america, south_america}a])
+end
+
+defmodule Country do
+  subtype(Exchema.Types.Atom, [inclusion: ~w{brazil canada portugal}a])
+  def continent_for(country) do
+    case country do
+      :brazil -> :south_america,
+      :canada -> :north_america,
+      _ -> :europe
+    end
+  end
+end
+
+defmodule Metadata, do: subtype(:any, [fun: &(is_list(&1) || is_map(&1))])
+
+defmodule FullName, do: structure([first: Name, last: Name])
 
 defmodule MyStructure do
   structure [
     name: FullName,
     country: Country,
+    continent: Continent,
     metadata: Metadata
   ]
+  
+  refine([fun: fn %{country: country, continent: continent} ->
+    Country.continent_for(country) == continent
+  end])
+  
+  def valid do
+    %MyStructure{
+      name: %FullName{
+        first: "Bernardo",
+        last: "Amorim"
+      },
+      country: :brazil,
+      continent: :south_america,
+      metadata: %{any: :thing}
+    }
+  end
+  
+  def invalid do
+    %MyStructure{
+      name: %FullName{
+        first: 1234,
+        last: :not_a_string
+      },
+      country: :croatia,
+      continent: :oceania,
+      metadata: :not_a_list_nor_a_map
+    }
+  end
 end
 
-valid = %MyStructure{
-  name: %FullName{
-    first: "Bernardo",
-    last: "Amorim"
-  },
-  country: :brazil,
-  metadata: %{any: :thing}
-}
-
-invalid = %MyStructure{
-  name: %FullName{
-    first: 1234,
-    last: :not_a_string
-  },
-  country: :croatia,
-  metadata: :not_a_list_nor_a_map
-}
-
-Exchema.is?(valid, MyStructure)
+Exchema.is?(MyStructure.valid, MyStructure)
 # => true
 
-Exchema.is?(invalid, MyStructure)
+Exchema.is?(MyStructure.invalid, MyStructure)
 # => false
 
 Exchema.errors(invalid, MyStructure)
@@ -61,6 +91,39 @@ invalid |> Exchema.errors(MyStructure) |> Exchema.Error.flattened
 #  {[:metadata], {Exchema.Predicates, :fun},
 #   #Function<0.33830354/1 in :elixir_compiler_0.__MODULE__/1>, :invalid}
 # ]
+```
+
+## Simplifying
+
+Sometimes typing `defmodule` is boring, that is why there are higher-arity versions of the macros.
+Also, if the only refinement you want is a function, you can pass it directly (instead of the predicate
+`[fun: &my_function/1]` you can pass `&my_function/1` directly)
+
+You can use this to define the same schema in a different way:
+
+```elixir
+subtype(Name, Exchema.Types.String, [])
+subtype(Continent, Exchema.Types.Atom, inclusion: ~w{europe north_america, south_america}a)
+subtype(Country, Exchema.Types.Atom, inclusion: ~w{brazil canada portugal}a) do
+  def continent_for(country) do
+    # ...
+  end
+end
+subtype(Metadata, :any, &(is_list(&1) || is_map(&1)))
+structure(FullName, first: Name, last: Name)
+structure(
+  MyStructure,
+  [
+    name: FullName,
+    country: Country,
+    continent: Continent,
+    metadata: Metadata
+  ]
+) do
+  refine([fun: fn %{country: country, continent: continent} ->
+    Country.continent_for(country) == continent
+  end])
+end
 ```
 
 ## Checking types
