@@ -216,7 +216,8 @@ iex> Exchema.Coercion.coerce("2018-01-01", Exchema.Types.Date)
 ~D[2018-01-01]
 
 defmodule MyStruct do
-  use Exchema.Struct, fields: [
+  import Exchema.Notation
+  structure [
     foo: Exchema.Types.Integer,
     bar: Exchema.Types.Date
   ]
