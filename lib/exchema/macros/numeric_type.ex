@@ -7,6 +7,7 @@ defmodule Exchema.Macros.NumericType do
       alias __MODULE__, as: ThisType
       alias Exchema.Predicates
 
+      @type t :: unquote(type)()
       def __type__({}) do
         {:ref, :any, [{{Predicates, :is}, unquote(type)}]}
       end
@@ -14,6 +15,7 @@ defmodule Exchema.Macros.NumericType do
       defmodule Positive do
         @moduledoc "Represents a positive #{unquote(type)}"
 
+        @type t :: unquote(type)()
         def __type__({}) do
           {:ref, ThisType, [{{Predicates, :gt}, 0}]}
         end
@@ -22,6 +24,7 @@ defmodule Exchema.Macros.NumericType do
       defmodule Negative do
         @moduledoc "Represents a negative #{unquote(type)}"
 
+        @type t :: unquote(type)()
         def __type__({}) do
           {:ref, ThisType, [{{Predicates, :lt}, 0}]}
         end
@@ -30,6 +33,7 @@ defmodule Exchema.Macros.NumericType do
       defmodule NonPositive do
         @moduledoc "Represents a non positive #{unquote(type)}"
 
+        @type t :: unquote(type)()
         def __type__({}) do
           {:ref, ThisType, [{{Predicates, :lte}, 0}]}
         end
@@ -38,6 +42,7 @@ defmodule Exchema.Macros.NumericType do
       defmodule NonNegative do
         @moduledoc "Represents a non negative #{unquote(type)}"
 
+        @type t :: unquote(type)()
         def __type__({}) do
           {:ref, ThisType, [{{Predicates, :gte}, 0}]}
         end
