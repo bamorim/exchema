@@ -12,6 +12,8 @@ defmodule Notation.TypespecTest do
   defmodule Complex do
     import Exchema.Notation
     alias Exchema.Types, as: T
+
+    structure SomeStruct, [i: T.Integer]
   
     structure [
       key: {T.List, {T.Map, {T.String, {T.Optional, T.DateTime}}}},
@@ -29,7 +31,9 @@ defmodule Notation.TypespecTest do
       st: T.Struct,
       m: T.Map,
       a: T.Atom,
-      b: T.Boolean
+      b: T.Boolean,
+      of: {T.OneOf, [T.Integer, T.Float]},
+      osf: {T.OneStructOf, [__MODULE__, SomeStruct]}
     ]
     
     @before_compile ExposeTypeSpec
@@ -44,7 +48,7 @@ defmodule Notation.TypespecTest do
     keys = fields |> Enum.map(fn {k,_v} -> k end) |> Enum.sort
 
     assert [
-      :a, :b, :d, :dt, :f, :i, :key, :m, :ndt, :ni, :nni, :pf, :pi, :s, :st, :t
+      :a, :b, :d, :dt, :f, :i, :key, :m, :ndt, :ni, :nni, :of, :osf, :pf, :pi, :s, :st, :t
     ] = keys
   end
 end

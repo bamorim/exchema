@@ -48,6 +48,24 @@ defmodule Exchema.Notation.Typespec do
     end
   end
 
+  defp typespec_for_type({Exchema.Types.OneOf, types}) do
+    typespec_for_type({Exchema.Types.OneStructOf, types})
+  end
+
+  defp typespec_for_type({Exchema.Types.OneStructOf, [type]}) do
+    typespec_for_type(type)
+  end
+
+  defp typespec_for_type({Exchema.Types.OneStructOf, types}) do
+    types
+    |> Enum.map(&typespec_for_type/1)
+    |> Enum.reduce(fn x, acc ->
+      quote do
+        unquote(x) | unquote(acc)
+      end
+    end)
+  end
+
   defp typespec_for_type({mod, {single_arg}}) do
     typespec_for_type({mod, single_arg})
   end
