@@ -41,7 +41,7 @@ defmodule Notation.TypespecTest do
 
   test "it contains all structure fields" do
     [{_,{_,_,[{_,_,_},{_,_,[{_,_,_},{_,_,fields}]}]},_}] = Complex.__typespec
-    keys = fields |> Enum.map(fn {k,v} -> k end) |> Enum.sort
+    keys = fields |> Enum.map(fn {k,_v} -> k end) |> Enum.sort
 
     assert [
       :a, :b, :d, :dt, :f, :i, :key, :m, :ndt, :ni, :nni, :pf, :pi, :s, :st, :t

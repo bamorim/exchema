@@ -19,6 +19,9 @@ defmodule CoercionTest do
 
   structure Nested, [child: {T.Optional, Nested}]
 
+  subtype MyOneOf, {T.OneOf, [T.Integer, Struct, Nested]}, []
+  subtype MyOneStructOf, {T.OneStructOf, [Struct, Nested]}, []
+
   test "Coercion to any doesnt change anything" do
     assert "1234" = coerce("1234", :any)
   end
@@ -101,5 +104,16 @@ defmodule CoercionTest do
   test "we can coerce lists" do
     result = coerce(["1", 2, 3.1], {T.List, T.Integer})
     assert [1,2,3] = result
+  end
+
+  test "we can coerce OneOf" do
+    assert 1 = coerce("1", MyOneOf)
+    assert %Struct{} = coerce(%{"foo" => "1"}, MyOneOf)
+    assert %Nested{} = coerce(%{"child" => nil}, MyOneOf)
+  end
+
+  test "we can coerce OneStructOf" do
+    assert %Struct{} = coerce(%{"foo" => "1"}, MyOneStructOf)
+    assert %Nested{} = coerce(%{"child" => nil}, MyOneStructOf)
   end
 end
