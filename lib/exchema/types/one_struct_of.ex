@@ -8,7 +8,6 @@ defmodule Exchema.Types.OneStructOf do
   This also has better error reporting, because it returns the errors of
   the given type.
   """
-  alias Exchema.Predicates
 
   @doc false
   def __type__({types}) when is_list(types) do

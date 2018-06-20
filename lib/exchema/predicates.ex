@@ -436,20 +436,20 @@ defmodule Exchema.Predicates do
   @doc """
   Checks if something is greater than a value
 
-  iex> Exchema.Predicates.gt(2, 1)
-  :ok
+      iex> Exchema.Predicates.gt(2, 1)
+      :ok
 
-  iex> Exchema.Predicates.gt(2, 2)
-  {:error, :not_greater}
+      iex> Exchema.Predicates.gt(2, 2)
+      {:error, :not_greater}
 
-  iex> Exchema.Predicates.gt(2, 3)
-  {:error, :not_greater}
+      iex> Exchema.Predicates.gt(2, 3)
+      {:error, :not_greater}
 
-  iex> Exchema.Predicates.gt("b", "a")
-  :ok
+      iex> Exchema.Predicates.gt("b", "a")
+      :ok
 
-  iex> Exchema.Predicates.gt("a", "b")
-  {:error, :not_greater}
+      iex> Exchema.Predicates.gt("a", "b")
+      {:error, :not_greater}
   """
   def gt(a, b) when a > b, do: :ok
   def gt(_, _), do: {:error, :not_greater}
@@ -457,20 +457,20 @@ defmodule Exchema.Predicates do
   @doc """
   Checks if something is greater than or equal to a value
 
-  iex> Exchema.Predicates.gte(2, 1)
-  :ok
+      iex> Exchema.Predicates.gte(2, 1)
+      :ok
 
-  iex> Exchema.Predicates.gte(2, 2)
-  :ok
+      iex> Exchema.Predicates.gte(2, 2)
+      :ok
 
-  iex> Exchema.Predicates.gte(2, 3)
-  {:error, :not_greater_or_equal}
+      iex> Exchema.Predicates.gte(2, 3)
+      {:error, :not_greater_or_equal}
 
-  iex> Exchema.Predicates.gte("b", "a")
-  :ok
+      iex> Exchema.Predicates.gte("b", "a")
+      :ok
 
-  iex> Exchema.Predicates.gte("a", "b")
-  {:error, :not_greater_or_equal}
+      iex> Exchema.Predicates.gte("a", "b")
+      {:error, :not_greater_or_equal}
   """
   def gte(a, b) when a >= b, do: :ok
   def gte(_, _), do: {:error, :not_greater_or_equal}
@@ -478,20 +478,20 @@ defmodule Exchema.Predicates do
   @doc """
   Checks if something is lesser than a value
 
-  iex> Exchema.Predicates.lt(1, 2)
-  :ok
+      iex> Exchema.Predicates.lt(1, 2)
+      :ok
 
-  iex> Exchema.Predicates.lt(2, 2)
-  {:error, :not_lesser}
+      iex> Exchema.Predicates.lt(2, 2)
+      {:error, :not_lesser}
 
-  iex> Exchema.Predicates.lt(3, 2)
-  {:error, :not_lesser}
+      iex> Exchema.Predicates.lt(3, 2)
+      {:error, :not_lesser}
 
-  iex> Exchema.Predicates.lt("a", "b")
-  :ok
+      iex> Exchema.Predicates.lt("a", "b")
+      :ok
 
-  iex> Exchema.Predicates.lt("b", "a")
-  {:error, :not_lesser}
+      iex> Exchema.Predicates.lt("b", "a")
+      {:error, :not_lesser}
   """
   def lt(a, b) when a < b, do: :ok
   def lt(_, _), do: {:error, :not_lesser}
@@ -499,20 +499,20 @@ defmodule Exchema.Predicates do
   @doc """
   Checks if something is lesser than or equal a value
 
-  iex> Exchema.Predicates.lte(1, 2)
-  :ok
+      iex> Exchema.Predicates.lte(1, 2)
+      :ok
 
-  iex> Exchema.Predicates.lte(2, 2)
-  :ok
+      iex> Exchema.Predicates.lte(2, 2)
+      :ok
 
-  iex> Exchema.Predicates.lte(3, 2)
-  {:error, :not_lesser_or_equal}
+      iex> Exchema.Predicates.lte(3, 2)
+      {:error, :not_lesser_or_equal}
 
-  iex> Exchema.Predicates.lte("a", "b")
-  :ok
+      iex> Exchema.Predicates.lte("a", "b")
+      :ok
 
-  iex> Exchema.Predicates.lte("b", "a")
-  {:error, :not_lesser_or_equal}
+      iex> Exchema.Predicates.lte("b", "a")
+      {:error, :not_lesser_or_equal}
   """
   def lte(a, b) when a <= b, do: :ok
   def lte(_, _), do: {:error, :not_lesser_or_equal}

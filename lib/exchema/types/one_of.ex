@@ -21,8 +21,7 @@ defmodule Exchema.Types.OneOf do
 
   If all the types are Structs, use `Exchema.Types.OneStructOf`
   """
-  alias Exchema.Predicates
-
+  
   @doc false
   def __type__({types}) when is_list(types) do
     {:ref, :any, [{{__MODULE__, :predicate}, types}]}

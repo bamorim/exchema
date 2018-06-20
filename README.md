@@ -212,7 +212,7 @@ Add `exchema` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:exchema, "~> 0.2.0"}
+    {:exchema, "~> 0.3.0"}
   ]
 end
 ```
