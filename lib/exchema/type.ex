@@ -9,22 +9,19 @@ defmodule Exchema.Type do
   """
   @type t :: module
 
-  @type error :: {:error, any}
-  @type predicate_failure :: false | error | [error, ...]
-  @type predicate_success :: :ok | true | []
-  @type predicate_result :: predicate_failure | predicate_success
-  @type predicate_fun :: ((any, any) -> predicate_result)
-  @type predicate :: {module, atom} | atom
-  @type predicate_spec :: {predicate, any}
+  @type predicate_reference :: {module, atom} | atom
+  @type predicate_spec :: {predicate_reference, any}
+  @type refined_type :: {:ref, t, [predicate_spec]}
 
   @type type_params :: tuple
-  @type type_reference :: t | {t, type_params}
-  @type refined_type :: {:ref, t, [predicate_spec]}
-  @type type_spec :: type_reference | refined_type
+  @type type_reference :: Type.t | {Type.t, type_params}
 
-  @callback __type__(type_params) :: type_spec
+  @type spec :: type_reference | refined_type
 
-  @spec resolve_type(Type.type_reference) :: Type.t | Type.refined_type
+  @callback __type__(type_params) :: spec
+
+  @doc "Resolves a type reference into it's definition"
+  @spec resolve_type(type_reference) :: spec
   def resolve_type({type, params}) when is_tuple(params) do
     type.__type__(params)
   end

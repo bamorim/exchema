@@ -15,6 +15,7 @@ defmodule ExchemaTest do
   end
 
   defmodule ListType do
+    @behaviour Exchema.Type
     def __type__({inner_type}) do
       {:ref, :any, [{{__MODULE__, :predicate}, inner_type}]}
     end

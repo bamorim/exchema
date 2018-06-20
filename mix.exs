@@ -6,7 +6,7 @@ defmodule Exchema.Mixfile do
       app: :exchema,
       version: "0.2.1",
       elixir: "~> 1.5",
-      start_permanent: Mix.env == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
       docs: docs()
@@ -22,18 +22,23 @@ defmodule Exchema.Mixfile do
 
   defp docs do
     [
+      main: "introduction",
       groups_for_modules: groups_for_modules(),
       extras: [
-        "README.md"
+        "README.md",
+        "guides/introduction.md",
+        "guides/types.md",
+        "guides/checking_types.md",
+        "guides/predicates.md"
       ]
     ]
   end
 
   defp deps do
     [
-      {:credo,       "~> 0.8", only: [:dev, :test], runtime: false},
-      {:dialyxir,    "~> 0.5", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false}
     ]
   end
 
@@ -49,7 +54,7 @@ defmodule Exchema.Mixfile do
 
   defp groups_for_modules do
     [
-      "Types": ~r/^Exchema\.Types/
+      Types: ~r/^Exchema\.Types/
     ]
   end
 end

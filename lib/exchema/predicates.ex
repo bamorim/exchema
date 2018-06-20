@@ -3,6 +3,11 @@ defmodule Exchema.Predicates do
   Exschema default predicates library
   """
 
+  @type error :: {:error, any}
+  @type failure :: false | error | [error, ...]
+  @type success :: :ok | true | []
+  @type result :: failure | success
+
   @doc """
   Just applies the function as if it was a predicate.
   It also checks for exceptions to allow simpler functions.
@@ -28,6 +33,7 @@ defmodule Exchema.Predicates do
       {:error, :thrown}
 
   """
+  @spec fun(any, ((any) -> result)) :: result
   def fun(val, fun) do
     fun.(val)
   rescue
@@ -35,19 +41,19 @@ defmodule Exchema.Predicates do
   end
 
   @doc """
-  Checks wheter a value is a list.
+  Checks the list type
   It can also check the types of the elemsts of the list by
   passing the `:element_type` param.
 
   ## Examples
 
-      iex> Exchema.Predicates.list("", [])
+      iex> Exchema.Predicates.list("", :any)
       {:error, :not_a_list}
 
-      iex> Exchema.Predicates.list([], [])
+      iex> Exchema.Predicates.list([], :any)
       :ok
 
-      iex> Exchema.Predicates.list(["",1,""], element_type: Exchema.Types.Integer)
+      iex> Exchema.Predicates.list(["",1,""], Exchema.Types.Integer)
       {:error, {
         :nested_errors,
         [
@@ -56,24 +62,20 @@ defmodule Exchema.Predicates do
         ]}
       }
 
-      iex> Exchema.Predicates.list([1,2,3], element_type: Exchema.Types.Integer)
+      iex> Exchema.Predicates.list([1,2,3], Exchema.Types.Integer)
       :ok
 
   """
   def list(list, _) when not is_list(list) do
     {:error, :not_a_list}
   end
-  def list(list, opts) do
-    case Keyword.get(opts, :element_type) do
-      nil ->
-        :ok
-      type ->
-        list
-        |> Enum.with_index
-        |> Enum.map(fn {e, idx} -> {idx, Exchema.errors(e, type)} end)
-        |> Enum.filter(fn {_, err} -> length(err) > 0 end)
-        |> nested_errors
-    end
+  def list(_list, :any), do: :ok
+  def list(list, element_type) do
+    list
+    |> Enum.with_index
+    |> Enum.map(fn {e, idx} -> {idx, Exchema.errors(e, element_type)} end)
+    |> Enum.filter(fn {_, err} -> length(err) > 0 end)
+    |> nested_errors
   end
 
   defp nested_errors(errors, error_key \\ :nested_errors)
@@ -130,41 +132,108 @@ defmodule Exchema.Predicates do
   defp check_struct(_,_), do: {:error, :invalid_struct}
 
   @doc """
-  Checks a map for its key types, value types or specific value types (for a given key).
+  Checks the key types of a map
 
   ## Examples
 
-      iex> Exchema.Predicates.map("", [])
+      iex> Exchema.Predicates.key_type("", :any)
       {:error, :not_a_map}
 
-      iex> Exchema.Predicates.map(%{}, [])
+      iex > Exchema.Predicates.key_type(%{1 => "value"}, Exchema.Types.Integer)
       :ok
 
-      iex > Exchema.Predicates.map(%{1 => "value"}, [key: Exchema.Types.Integer])
-      :ok
-
-      iex > Exchema.Predicates.map(%{"key" => 1}, [values: Exchema.Types.Integer])
-      :ok
-
-      iex > Exchema.Predicates.map(%{"key" => 1}, [keys: Exchema.Types.Integer])
+      iex > Exchema.Predicates.key_type(%{"key" => 1}, Exchema.Types.Integer)
       {:error, {
         :key_errors,
         [{"key", [{{Exchema.Predicates, :is}, :integer, :not_an_integer}]}]
       }}
+  """
+  def key_type(%{} = map, type) do
+    map
+    |> Map.keys
+    |> Enum.flat_map(& Exchema.errors(&1, type))
+    |> nested_errors(:key_errors)
+  end
+  def key_type(_, _), do: {:error, :not_a_map}
 
-      iex > Exchema.Predicates.map(%{1 => "value"}, [values: Exchema.Types.Integer])
+  @doc """
+  Checks the types of the values of a Map or Keyword List
+
+  ## Examples
+
+      iex > Exchema.Predicates.value_type(%{"key" => 1}, Exchema.Types.Integer)
+      :ok
+
+      iex > Exchema.Predicates.value_type([key: 1], Exchema.Types.Integer)
+      :ok
+
+      iex > Exchema.Predicates.value_type(%{1 => "value"}, Exchema.Types.Integer)
       {:error, {
-        :value_errors,
-        [{"value", [{{Exchema.Predicates, :is}, :integer, :not_an_integer}]}]
+        :nested_errors,
+        [{1, [{{Exchema.Predicates, :is}, :integer, :not_an_integer}]}]
       }}
 
-      iex> Exchema.Predicates.map(%{foo: :bar}, fields: [foo: Exchema.Types.Integer])
+      iex > Exchema.Predicates.value_type([foo: :bar], Exchema.Types.Integer)
       {:error, {
         :nested_errors,
         [{:foo, [{{Exchema.Predicates, :is}, :integer, :not_an_integer}]}]
       }}
   """
-  defdelegate map(input, opts), to: Exchema.Predicates.Map
+  def value_type(%{} = map, type), do: do_value_type(Map.to_list(map), type)
+  def value_type(kwlist, type) do
+    if Keyword.keyword?(kwlist) do
+      do_value_type(kwlist, type)
+    else
+      {:error, :not_list_or_map}
+    end
+  end
+
+  defp do_value_type(tuple_list, type) do
+    tuple_list
+    |> Enum.flat_map(fn {key, value} ->
+      case Exchema.errors(value, type) do
+        [] -> []
+        errs -> [{key, errs}]
+      end
+    end)
+    |> nested_errors(:nested_errors)
+  end
+
+  @doc """
+  Checks the types of specific fields of a Map or Keyword List
+
+  ## Examples
+
+      iex> Exchema.Predicates.fields(%{foo: 1}, foo: Exchema.Types.Integer)
+      :ok
+
+      iex> Exchema.Predicates.fields([foo: 1], foo: Exchema.Types.Integer)
+      :ok
+
+      iex> Exchema.Predicates.fields(%{foo: :bar}, foo: Exchema.Types.Integer)
+      {:error, {
+        :nested_errors,
+        [{:foo, [{{Exchema.Predicates, :is}, :integer, :not_an_integer}]}]
+      }}
+  """
+  def fields(%{} = map, fields), do: do_fields(map, &Map.get/2, fields)
+  def fields(kwlist, fields) do
+    if Keyword.keyword?(kwlist) do
+      do_fields(kwlist, &Keyword.get/2, fields)
+    else
+      {:error, :not_list_or_map}
+    end
+  end
+  defp do_fields(collection, get_fn, fields) do
+    fields
+    |> Enum.flat_map(fn {key, type} ->
+      case Exchema.errors(get_fn.(collection, key), type) do
+        [] -> []
+        errs -> [{key, errs}]
+      end
+    end)
+    |> nested_errors(:nested_errors)
+  end
 
   @doc """
   Checks against system guards like `is_integer` or `is_float`.

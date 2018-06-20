@@ -34,7 +34,7 @@ defmodule Exchema.Types.Struct do
       {Types.Map, {Types.Atom, :any}},
       [
         {{Predicates, :is_struct}, mod},
-        {{Predicates, :map}, fields: fields}
+        {{Predicates, :fields}, fields}
       ]
     }
   end

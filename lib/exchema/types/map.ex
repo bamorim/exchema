@@ -18,10 +18,8 @@ defmodule Exchema.Types.Map do
       :ref,
       :any,
       [
-        {{Exchema.Predicates, :map}, [
-          keys: key_type,
-          values: value_type
-        ]}
+        {{Exchema.Predicates, :key_type}, key_type},
+        {{Exchema.Predicates, :value_type}, value_type},
       ]
     }
   end

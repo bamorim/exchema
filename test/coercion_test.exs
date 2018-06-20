@@ -4,35 +4,23 @@ defmodule CoercionTest do
   @moduletag :coercion
 
   import Exchema.Coercion
+  import Exchema.Notation
   alias Exchema.Types, as: T
 
-  defmodule MyAny do
-    def __type__({}) do
-      {:ref, :any, []}
-    end
-  end
+  subtype MyAny, :any, []
 
-  defmodule CustomCoercion do
-    def __type__({}) do
-      {:ref, :any, []}
-    end
-
+  subtype CustomCoercion, :any, [] do
     def __coerce__(input) do
       input <> input
     end
   end
 
-  defmodule Struct do
-    use Exchema.Struct, fields: [
-      foo: T.Integer
-    ]
-  end
+  structure Struct, [foo: T.Integer]
 
-  defmodule Nested do
-    use Exchema.Struct, fields: [
-      child: {T.Optional, __MODULE__}
-    ]
-  end
+  structure Nested, [child: {T.Optional, Nested}]
+
+  subtype MyOneOf, {T.OneOf, [T.Integer, Struct, Nested]}, []
+  subtype MyOneStructOf, {T.OneStructOf, [Struct, Nested]}, []
 
   test "Coercion to any doesnt change anything" do
     assert "1234" = coerce("1234", :any)
@@ -116,5 +104,16 @@ defmodule CoercionTest do
   test "we can coerce lists" do
     result = coerce(["1", 2, 3.1], {T.List, T.Integer})
     assert [1,2,3] = result
+  end
+
+  test "we can coerce OneOf" do
+    assert 1 = coerce("1", MyOneOf)
+    assert %Struct{} = coerce(%{"foo" => "1"}, MyOneOf)
+    assert %Nested{} = coerce(%{"child" => nil}, MyOneOf)
+  end
+
+  test "we can coerce OneStructOf" do
+    assert %Struct{} = coerce(%{"foo" => "1"}, MyOneStructOf)
+    assert %Nested{} = coerce(%{"child" => nil}, MyOneStructOf)
   end
 end
