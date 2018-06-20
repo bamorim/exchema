@@ -162,7 +162,7 @@ In the case of list, you can just use and not specify it directly, so
 `{Exchema.Types.List, :any}`.
 
 Some types can have multiple parameters, e.g. a map.
-`{Exchema.Types.Map, {Exchema.Types.String, Exchema.Types.Integer}}` repre"/auth/auth0"sents
+`{Exchema.Types.Map, {Exchema.Types.String, Exchema.Types.Integer}}` represents
 a map from strings to integer.
 
 Types with 0 params can be represented just by the module name.
@@ -204,34 +204,6 @@ A type can be:
 - a type reference such as `Exchema.Types.String`
 - a type refinement such as `{:ref, :any, length: 1}` (more on that later)
 - a type application (for parametric types) such as `{Exchema.Types.List, Exchema.Types.String}`
-
-## Coercion
-
-This should probably move to another library, but for now it is bundled here.
-
-`Exchema.Coercion` can receive some input and coerce to a specific type.
-
-```elixir
-iex> Exchema.Coercion.coerce("2018-01-01", Exchema.Types.Date)
-~D[2018-01-01]
-
-defmodule MyStruct do
-  import Exchema.Notation
-  structure [
-    foo: Exchema.Types.Integer,
-    bar: Exchema.Types.Date
-  ]
-end
-
-iex> Exchema.Coercion.coerce(%{"foo" => 1, "bar" => "2018-01-01"}, MyStruct)
-%MyStruct{
-  foo: 1,
-  bar: ~D[2018-01-01]
-}
-
-iex> Exchema.Coercion.coerce(["1", 2, 3.0], {Exchema.Types.List, Exchema.Types.Integer})
-[1,2,3]
-```
 
 ## Installation
 

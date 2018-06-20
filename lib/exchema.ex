@@ -10,8 +10,6 @@ defmodule Exchema do
     types. It's just a bunch of 2-arity functions that receives the value and some
     options.
   * `Exchema.Notation` - a DSL for defining types.
-  * `Exchema.Coercion` - Use the type specs to magically coerces input values into
-  the defined datatypes. (It should probably move into another library in the future)
 
   It also comes with a series of pre-defined types you can check under `Exchema.Types`
   namespace.

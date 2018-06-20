@@ -1,8 +1,10 @@
 # Introduction
 
-Exchema is a library to define, validate and coerce data. It allows
+Exchema is a library to define and validate data. It allows
 you to check the type for a given value at runtime (it is **not** static
 type checking).
+
+The type definition allows us to build other nice libraries on top of it like [`exchema_coercion`](https://github/bamorim/exchema_coercion) and [`exchema_stream_data`](https://github.com/bamorim/exchema_stream_data)
 
 It uses the idea of **refinement types**, in which we have a global type
 (which all values belong) and can refine that type with the use of
@@ -29,11 +31,7 @@ subtype Name, Exchema.Types.String, []
 structure Names, [first: Name, last: Name]
 
 # Pay attention at the 'default' values. They are type definitions.
-# With that we can coerce and validate input.
-
-# Let's coerce first:
-names = Exchema.Coercion.coerce(%{"first" => "Hello", "last" => "World"}, Names)
-# this outputs `%Names{first: "Hello", last: "World"}`
+# With that we can validate input.
     
 # That was easy.
 
@@ -74,11 +72,10 @@ structure User, [
   ]
 ```
 
-Awesome. Let's again coerce and validate:
+Awesome. Let's again validate:
 
 ``` elixir
-user = Exchema.Coercion.coerce(%{first_name: "Hello", last_name: "World"}, User)
-# This outputs: %User{id: nil, first_name: "Hello", last_name: "World"}
+user = %User{id: nil, first_name: "Hello", last_name: "World"}
 ```
 
 But... wait! `id` nil is valid? Well, let's validate to check:
@@ -114,12 +111,6 @@ Exchema.is?(user, User)
 # true
 ```
 
-All right! That covers the basics. We have seen specifically two features:
-
-- **Coercion**: which is the ability to use types to transform valid input
-into the defined type/structure.
-- **Validation**: which is the ability to validate external input according
-to the schema you defined.
+All right! That covers the basics.
 
 See the Types guide for understanding the core concept behind refinement types.
-
