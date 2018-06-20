@@ -4,7 +4,7 @@ defmodule Exchema.Mixfile do
   def project do
     [
       app: :exchema,
-      version: "0.2.1",
+      version: "0.3.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -45,7 +45,7 @@ defmodule Exchema.Mixfile do
   defp package do
     [
       name: "exchema",
-      description: "Exchema is a library to build schemas that can coerce and validate input",
+      description: "Exchema is a library to define data types and validate it",
       licenses: ["Apache 2.0"],
       maintainers: ["Bernardo Amorim"],
       links: %{"GitHub" => "https://github.com/bamorim/exchema"}
