@@ -8,6 +8,8 @@ It uses the idea of **refinement types**, in which we have a global type
 (which all values belong) and can refine that type with the use of
 **predicates**.
 
+Also, check [`exchema_coercion`](https://github/bamorim/exchema_coercion) and [`exchema_stream_data`](https://github.com/bamorim/exchema_stream_data)
+
 It also comes with a neat DSL to help you define your types.
 
 The macros you need to keep in mind are `subtype/2`, `structure/1` and `refine/1`
