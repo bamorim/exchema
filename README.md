@@ -162,7 +162,7 @@ In the case of list, you can just use and not specify it directly, so
 `{Exchema.Types.List, :any}`.
 
 Some types can have multiple parameters, e.g. a map.
-`{Exchema.Types.Map, {Exchema.Types.String, Exchema.Types.Integer}}` repre"/auth/auth0"sents
+`{Exchema.Types.Map, {Exchema.Types.String, Exchema.Types.Integer}}` represents
 a map from strings to integer.
 
 Types with 0 params can be represented just by the module name.
