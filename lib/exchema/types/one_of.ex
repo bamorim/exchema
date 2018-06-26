@@ -29,14 +29,14 @@ defmodule Exchema.Types.OneOf do
 
   @doc false
   def predicate(value, types) do
-    types
-    |> Stream.filter(&Exchema.is?(value, &1))
-    |> Enum.at(0)
-    |> case do
-      nil ->
-        {:error, :invalid_type}
-      _ ->
-        :ok
+    errors =
+      types
+      |> Stream.map(&{&1, Exchema.errors(value, &1)})
+
+    if Enum.any?(errors, fn {_, errs} -> errs == [] end) do
+      :ok
+    else
+      {:error, {:nested_errors, Enum.to_list(errors)}}
     end
   end
 end
