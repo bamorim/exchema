@@ -3,8 +3,17 @@ defmodule Notation.TypespecTest do
 
   defmodule ExposeTypeSpec do
     defmacro __before_compile__(_) do
-      quote do
-        def __typespec, do: @type
+      if Version.match?(System.version(), ">= 1.7.0") do
+        quote do
+          {_set, bag} = :elixir_module.data_tables(__MODULE__)
+          @typespecs :ets.lookup_element(bag, :type, 2)
+
+          def __typespec, do: @typespecs
+        end
+      else
+        quote do
+          def __typespec, do: @type
+        end
       end
     end
   end
@@ -13,9 +22,9 @@ defmodule Notation.TypespecTest do
     import Exchema.Notation
     alias Exchema.Types, as: T
 
-    structure SomeStruct, [i: T.Integer]
-  
-    structure [
+    structure(SomeStruct, i: T.Integer)
+
+    structure(
       key: {T.List, {T.Map, {T.String, {T.Optional, T.DateTime}}}},
       f: T.Float,
       pf: T.Float.Positive,
@@ -34,21 +43,38 @@ defmodule Notation.TypespecTest do
       b: T.Boolean,
       of: {T.OneOf, [T.Integer, T.Float]},
       osf: {T.OneStructOf, [__MODULE__, SomeStruct]}
-    ]
-    
+    )
+
     @before_compile ExposeTypeSpec
   end
 
   test "it generates a typespec" do
-    assert [_ | _] = Complex.__typespec
+    assert [_ | _] = Complex.__typespec()
   end
 
   test "it contains all structure fields" do
-    [{_,{_,_,[{_,_,_},{_,_,[{_,_,_},{_,_,fields}]}]},_}] = Complex.__typespec
-    keys = fields |> Enum.map(fn {k,_v} -> k end) |> Enum.sort
+    [{_, {_, _, [{_, _, _}, {_, _, [{_, _, _}, {_, _, fields}]}]}, _}] = Complex.__typespec()
+    keys = fields |> Enum.map(fn {k, _v} -> k end) |> Enum.sort()
 
     assert [
-      :a, :b, :d, :dt, :f, :i, :key, :m, :ndt, :ni, :nni, :of, :osf, :pf, :pi, :s, :st, :t
-    ] = keys
+             :a,
+             :b,
+             :d,
+             :dt,
+             :f,
+             :i,
+             :key,
+             :m,
+             :ndt,
+             :ni,
+             :nni,
+             :of,
+             :osf,
+             :pf,
+             :pi,
+             :s,
+             :st,
+             :t
+           ] = keys
   end
 end
