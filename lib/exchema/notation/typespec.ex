@@ -6,9 +6,13 @@ defmodule Exchema.Notation.Typespec do
   end
 
   defp type_t_defined(mod) do
+    if Version.match?(System.version(), ">= 1.7.0") do
+      Module.defines_type?(mod, {:t, 0})
+    else
       mod
       |> Module.get_attribute(:type)
       |> Enum.any?(&is_type_t/1)
+    end
   end
 
   defp define_type_t(mod) do
@@ -22,12 +26,14 @@ defmodule Exchema.Notation.Typespec do
   defp is_type_t(_), do: false
 
   defp typespec_for_type({Exchema.Types.Struct, {_, fields}}) do
-    {:%, nil, [
-      {:__MODULE__, [], Elixir},
-      {:%{}, [], Enum.map(fields, fn {field, type} ->
-        {field, typespec_for_type(type)}
-      end)}
-    ]}
+    {:%, nil,
+     [
+       {:__MODULE__, [], Elixir},
+       {:%{}, [],
+        Enum.map(fields, fn {field, type} ->
+          {field, typespec_for_type(type)}
+        end)}
+     ]}
   end
 
   defp typespec_for_type({Exchema.Types.List, type}) do
@@ -74,10 +80,12 @@ defmodule Exchema.Notation.Typespec do
     case to_string(mod) do
       "Elixir.Exchema.Types." <> rest ->
         exchema_typespec(rest)
+
       "Elixir." <> _ ->
         quote do
           unquote(mod).t
         end
+
       _ ->
         {:any, [], []}
     end
@@ -115,16 +123,17 @@ defmodule Exchema.Notation.Typespec do
   defp simple(atom) do
     {atom, [], []}
   end
-  
+
   defp from_str(str) do
     str
-    |> String.downcase
-    |> String.to_atom
+    |> String.downcase()
+    |> String.to_atom()
     |> simple
   end
 
   defp from_mod(mod) do
     mod = :"Elixir.#{mod}"
+
     quote do
       unquote(mod).t
     end
