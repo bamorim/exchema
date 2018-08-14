@@ -8,6 +8,8 @@ However, prior to 0.3.0 we were not following Semantic Versioning, so we broke t
 
 ## [Unreleased]
 
+## 0.4.0 - 2018-08-14
+
 ### Bug Fixes
 
 * Fix error when checking typespec definition on Elixir >= 1.7.0 (#8)
